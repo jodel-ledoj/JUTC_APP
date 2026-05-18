@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+
+# Environment files — never commit secrets
+.env
+.env.local
+.env.*.local
+apps/mobile/.env
+apps/backend/.env
+apps/admin/.env
+
+# Build outputs
+dist/
+build/
+.turbo/
+
+# Expo
+apps/mobile/.expo/
+apps/mobile/android/.gradle/
+apps/mobile/android/app/build/
+apps/mobile/android/build/
+apps/mobile/ios/build/
+apps/mobile/ios/Pods/
+
+# Google Services (contains API keys)
+apps/mobile/google-services.json
+apps/mobile/GoogleService-Info.plist
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Prisma
+apps/backend/prisma/*.db

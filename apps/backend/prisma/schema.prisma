@@ -1,0 +1,453 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  PASSENGER
+  DRIVER
+  CONDUCTOR
+  INSPECTOR
+  ADMIN
+  EXECUTIVE
+}
+
+enum BusStatus {
+  IN_SERVICE
+  OUT_OF_SERVICE
+  MAINTENANCE
+  BREAKDOWN
+  DEPOT
+}
+
+enum TripStatus {
+  SCHEDULED
+  EN_ROUTE
+  COMPLETED
+  CANCELLED
+  BREAKDOWN
+}
+
+enum TransactionType {
+  TAP_IN
+  TOP_UP
+  REFUND
+  REVERSAL
+  ADJUSTMENT
+  OVERRIDE
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REVERSED
+}
+
+enum IncidentType {
+  MISSED_STOP
+  RECKLESS_DRIVING
+  HARASSMENT
+  OVERCHARGING
+  BROKEN_EQUIPMENT
+  BREAKDOWN
+  EMERGENCY
+  OTHER
+}
+
+enum IncidentStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum NotificationType {
+  DELAY
+  ROUTE_CHANGE
+  SERVICE_ALERT
+  PAYMENT
+  EMERGENCY
+  SYSTEM
+}
+
+enum NotificationSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum FareType {
+  STANDARD
+  STUDENT
+  SENIOR
+  CHILD
+  MONTHLY_PASS
+}
+
+enum TopUpMethod {
+  CARD
+  BANK_TRANSFER
+  VOUCHER
+  CASH_AGENT
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String?   @unique
+  phone         String    @unique
+  name          String
+  password      String
+  role          UserRole  @default(PASSENGER)
+  isActive      Boolean   @default(true)
+  isVerified    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  smartCard     SmartCard?
+  driverTrips   Trip[]         @relation("DriverTrips")
+  incidents     Incident[]     @relation("IncidentReporter")
+  refreshTokens RefreshToken[]
+  pushTokens    PushToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model PushToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  platform  String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("push_tokens")
+}
+
+model SmartCard {
+  id           String        @id @default(uuid())
+  cardNumber   String        @unique
+  userId       String        @unique
+  balanceJMD   Decimal       @default(0) @db.Decimal(10, 2)
+  isActive     Boolean       @default(true)
+  isBlocked    Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  user         User          @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+  qrTickets    QRTicket[]
+
+  @@map("smart_cards")
+}
+
+model Transaction {
+  id             String            @id @default(uuid())
+  cardId         String
+  type           TransactionType
+  status         TransactionStatus @default(COMPLETED)
+  amountJMD      Decimal           @db.Decimal(10, 2)
+  balanceAfter   Decimal           @db.Decimal(10, 2)
+  busId          String?
+  routeId        String?
+  validatorId    String?
+  tripId         String?
+  topUpMethod    TopUpMethod?
+  overrideReason String?
+  metadata       Json?
+  createdAt      DateTime          @default(now())
+
+  card  SmartCard @relation(fields: [cardId], references: [id])
+  bus   Bus?      @relation(fields: [busId], references: [id])
+  route Route?    @relation(fields: [routeId], references: [id])
+
+  @@index([cardId, createdAt])
+  @@index([busId, createdAt])
+  @@index([routeId, createdAt])
+  @@map("transactions")
+}
+
+model Depot {
+  id        String   @id @default(uuid())
+  name      String
+  latitude  Float
+  longitude Float
+  isActive  Boolean  @default(true)
+  buses     Bus[]
+
+  @@map("depots")
+}
+
+model Bus {
+  id            String     @id @default(uuid())
+  plateNumber   String     @unique
+  depotId       String?
+  status        BusStatus  @default(DEPOT)
+  make          String
+  model         String
+  year          Int
+  capacity      Int        @default(60)
+  hasValidator  Boolean    @default(false)
+  hasGPS        Boolean    @default(false)
+  odometerKm    Float      @default(0)
+  lastServiceKm Float      @default(0)
+  fuelLevel     Int?
+  isActive      Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  depot            Depot?          @relation(fields: [depotId], references: [id])
+  trips            Trip[]
+  defects          BusDefect[]
+  transactions     Transaction[]
+  gpsEvents        GpsEvent[]
+  occupancyEvents  OccupancyEvent[]
+
+  @@map("buses")
+}
+
+model BusDefect {
+  id          String           @id @default(uuid())
+  busId       String
+  description String
+  severity    IncidentSeverity @default(MEDIUM)
+  isResolved  Boolean          @default(false)
+  reportedBy  String
+  resolvedAt  DateTime?
+  createdAt   DateTime         @default(now())
+  bus         Bus              @relation(fields: [busId], references: [id])
+
+  @@index([busId, isResolved])
+  @@map("bus_defects")
+}
+
+model Route {
+  id          String   @id @default(uuid())
+  name        String
+  code        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  color       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  stops         RouteStop[]
+  schedules     Schedule[]
+  trips         Trip[]
+  transactions  Transaction[]
+  notifications Notification[]
+
+  @@map("routes")
+}
+
+model Stop {
+  id        String      @id @default(uuid())
+  name      String
+  code      String      @unique
+  latitude  Float
+  longitude Float
+  isActive  Boolean     @default(true)
+  routes    RouteStop[]
+
+  @@map("stops")
+}
+
+model RouteStop {
+  id       String @id @default(uuid())
+  routeId  String
+  stopId   String
+  sequence Int
+  route    Route  @relation(fields: [routeId], references: [id])
+  stop     Stop   @relation(fields: [stopId], references: [id])
+
+  @@unique([routeId, sequence])
+  @@unique([routeId, stopId])
+  @@map("route_stops")
+}
+
+model Schedule {
+  id            String  @id @default(uuid())
+  routeId       String
+  departureTime String
+  days          Int[]
+  isActive      Boolean @default(true)
+  route         Route   @relation(fields: [routeId], references: [id])
+
+  @@map("schedules")
+}
+
+model Trip {
+  id                 String     @id @default(uuid())
+  routeId            String
+  busId              String
+  driverId           String
+  scheduleId         String?
+  status             TripStatus @default(SCHEDULED)
+  passengerCount     Int        @default(0)
+  scheduledDeparture DateTime
+  actualDeparture    DateTime?
+  completedAt        DateTime?
+  currentStopSeq     Int        @default(0)
+  notes              String?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  route     Route      @relation(fields: [routeId], references: [id])
+  bus       Bus        @relation(fields: [busId], references: [id])
+  driver    User       @relation("DriverTrips", fields: [driverId], references: [id])
+  incidents Incident[]
+
+  @@index([routeId, status])
+  @@index([driverId, status])
+  @@index([busId, status])
+  @@map("trips")
+}
+
+model GpsEvent {
+  id        String   @id @default(uuid())
+  busId     String
+  tripId    String?
+  latitude  Float
+  longitude Float
+  speed     Float?
+  heading   Float?
+  accuracy  Float?
+  timestamp DateTime @default(now())
+
+  bus Bus @relation(fields: [busId], references: [id])
+
+  @@index([busId, timestamp])
+  @@index([tripId, timestamp])
+  @@map("gps_events")
+}
+
+model Incident {
+  id          String           @id @default(uuid())
+  type        IncidentType
+  description String
+  status      IncidentStatus   @default(OPEN)
+  severity    IncidentSeverity @default(MEDIUM)
+  reportedBy  String
+  busId       String?
+  routeId     String?
+  tripId      String?
+  mediaUrls   String[]
+  adminNotes  String?
+  resolvedAt  DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  reporter User  @relation("IncidentReporter", fields: [reportedBy], references: [id])
+  trip     Trip? @relation(fields: [tripId], references: [id])
+
+  @@index([status, severity])
+  @@index([reportedBy])
+  @@map("incidents")
+}
+
+model Notification {
+  id            String               @id @default(uuid())
+  type          NotificationType
+  severity      NotificationSeverity @default(INFO)
+  title         String
+  body          String
+  routeId       String?
+  affectedStops String[]
+  metadata      Json?
+  expiresAt     DateTime?
+  isActive      Boolean              @default(true)
+  createdAt     DateTime             @default(now())
+
+  route Route? @relation(fields: [routeId], references: [id])
+
+  @@index([isActive, createdAt])
+  @@map("notifications")
+}
+
+model QRTicket {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  cardId    String
+  fareType  FareType @default(STANDARD)
+  amountJMD Decimal  @db.Decimal(10, 2)
+  routeId   String?
+  expiresAt DateTime
+  usedAt    DateTime?
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  card SmartCard @relation(fields: [cardId], references: [id])
+
+  @@index([token])
+  @@index([cardId, isUsed])
+  @@map("qr_tickets")
+}
+
+model FareRule {
+  id            String   @id @default(uuid())
+  fareType      FareType @default(STANDARD)
+  baseAmountJMD Decimal  @db.Decimal(10, 2)
+  routeId       String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("fare_rules")
+}
+
+model OccupancyEvent {
+  id             String   @id @default(uuid())
+  busId          String
+  tripId         String?
+  sensorId       String?
+  passengerCount Int
+  capacity       Int
+  occupancyPct   Float
+  latitude       Float?
+  longitude      Float?
+  timestamp      DateTime @default(now())
+
+  bus Bus @relation(fields: [busId], references: [id])
+
+  @@index([busId, timestamp])
+  @@index([tripId, timestamp])
+  @@map("occupancy_events")
+}
+
+model FraudAlert {
+  id          String   @id @default(uuid())
+  ruleCode    String
+  cardId      String?
+  busId       String?
+  driverId    String?
+  validatorId String?
+  description String
+  metadata    Json?
+  isReviewed  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([isReviewed, createdAt])
+  @@map("fraud_alerts")
+}

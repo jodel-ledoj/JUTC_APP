@@ -1,0 +1,2027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JUTC Digital Transit System — Feature Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0F1115;
+  --surface:   #1A1D23;
+  --surface2:  #20252f;
+  --border:    #2a2f38;
+  --blue:      #2F80ED;
+  --blue-soft: #4b98ff;
+  --blue-dim:  rgba(47,128,237,0.12);
+  --amber:     #F2C94C;
+  --amber-dim: rgba(242,201,76,0.12);
+  --green:     #27AE60;
+  --green-dim: rgba(39,174,96,0.12);
+  --red:       #EB5757;
+  --red-dim:   rgba(235,87,87,0.12);
+  --text:      #F5F7FA;
+  --muted:     #8c94a3;
+  --soft:      #b6bdc9;
+  --r:         12px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Manrope', system-ui, sans-serif;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.65;
+  font-size: 15px;
+}
+
+/* ---- Layout ---- */
+.page-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* ---- Header ---- */
+.doc-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 32px;
+  margin-bottom: 40px;
+}
+.doc-header .eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 10px;
+}
+.doc-header h1 {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.doc-header .subtitle {
+  color: var(--muted);
+  font-size: 14px;
+  max-width: 680px;
+}
+.doc-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.doc-meta span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.doc-meta strong {
+  color: var(--soft);
+}
+
+/* ---- Table of Contents ---- */
+.toc-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 28px 32px;
+  margin-bottom: 48px;
+}
+.toc-card h2 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+.toc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 8px 24px;
+}
+.toc-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  text-decoration: none;
+  color: var(--soft);
+  font-size: 13.5px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+.toc-item:hover { color: var(--blue-soft); }
+.toc-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue);
+  min-width: 22px;
+}
+
+/* ---- Sections ---- */
+.section {
+  margin-bottom: 60px;
+  padding-top: 8px;
+}
+.section + .section {
+  border-top: 1px solid var(--border);
+  padding-top: 48px;
+}
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 8px;
+}
+.section h2 {
+  font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 20px;
+  line-height: 1.25;
+}
+.section-intro {
+  color: var(--muted);
+  font-size: 14px;
+  max-width: 720px;
+  margin-bottom: 28px;
+  line-height: 1.7;
+}
+
+/* ---- Cards ---- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 24px;
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+
+/* ---- Grids ---- */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+/* ---- Status Badges ---- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.badge-built   { background: var(--green-dim); color: var(--green); border: 1px solid rgba(39,174,96,0.25); }
+.badge-partial { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(242,201,76,0.25); }
+.badge-fixed   { background: var(--blue-dim);  color: var(--blue);  border: 1px solid rgba(47,128,237,0.25); }
+.badge-aspire  { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(235,87,87,0.25); }
+.badge-dot::before {
+  content: '';
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ---- Tables ---- */
+.table-wrap {
+  overflow-x: auto;
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+thead th {
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 11px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,0.025); }
+tbody td {
+  padding: 12px 16px;
+  color: var(--soft);
+  vertical-align: top;
+}
+tbody td:first-child { color: var(--text); font-weight: 500; }
+
+/* ---- Code ---- */
+code {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 12.5px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: var(--blue-soft);
+}
+.code-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px 20px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--soft);
+  overflow-x: auto;
+  white-space: pre;
+}
+.code-block .c-comment { color: var(--muted); font-style: italic; }
+.code-block .c-key     { color: var(--blue-soft); }
+.code-block .c-str     { color: var(--amber); }
+.code-block .c-kw      { color: #c678dd; }
+.code-block .c-fn      { color: #61dafb; }
+.code-block .c-num     { color: var(--green); }
+
+/* ---- Fix Blocks ---- */
+.fix-block {
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.fix-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px 20px;
+  border-left: 4px solid var(--green);
+  background: var(--surface);
+}
+.fix-header.warn {
+  border-left-color: var(--amber);
+}
+.fix-icon {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.fix-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.fix-sub {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.fix-body {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  background: rgba(0,0,0,0.15);
+}
+.fix-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 8px 12px;
+  font-size: 13px;
+  margin-bottom: 10px;
+  align-items: start;
+}
+.fix-row:last-child { margin-bottom: 0; }
+.fix-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-top: 1px;
+}
+.fix-label.problem { color: var(--amber); }
+.fix-label.solution { color: var(--green); }
+.fix-label.files { color: var(--blue); }
+.fix-value { color: var(--soft); line-height: 1.6; }
+
+/* ---- Timeline Steps ---- */
+.timeline {
+  position: relative;
+  padding-left: 28px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--border);
+}
+.timeline-step {
+  position: relative;
+  margin-bottom: 20px;
+}
+.timeline-step::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--blue);
+  border: 2px solid var(--bg);
+}
+.timeline-step h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.timeline-step p {
+  font-size: 13px;
+  color: var(--muted);
+}
+.timeline-step code {
+  font-size: 11.5px;
+}
+
+/* ---- Screen Feature Lists ---- */
+.screen-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.screen-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.screen-header h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.screen-body {
+  padding: 16px 18px;
+}
+.feat-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.feat-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--soft);
+  line-height: 1.55;
+}
+.feat-list li::before {
+  content: '—';
+  color: var(--blue);
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+/* ---- Slide Map ---- */
+.slide-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr;
+  gap: 0;
+  align-items: stretch;
+}
+@media (max-width: 640px) {
+  .slide-row { grid-template-columns: 60px 1fr; }
+  .slide-row .sr-files { display: none; }
+}
+.slide-row th, .slide-row td {
+  padding: 11px 14px;
+}
+
+/* ---- KV Rows ---- */
+.kv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.kv-row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 12px;
+  font-size: 13px;
+  align-items: start;
+}
+.kv-key {
+  color: var(--muted);
+  font-weight: 600;
+}
+.kv-val { color: var(--soft); }
+
+/* ---- Env Var Table ---- */
+.env-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.env-row {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+}
+.env-row:last-child { border-bottom: none; }
+.env-key, .env-desc {
+  padding: 10px 16px;
+  font-size: 13px;
+}
+.env-key {
+  background: var(--surface2);
+  color: var(--blue-soft);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  border-right: 1px solid var(--border);
+}
+.env-desc { color: var(--muted); }
+
+/* ---- Creds ---- */
+.cred-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.cred-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.cred-role {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--blue);
+  margin-bottom: 8px;
+}
+.cred-phone {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.cred-pass {
+  font-size: 13px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+.cred-note {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+/* ---- Stitch section ---- */
+.token-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+.token-swatch {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.swatch-dot {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.08);
+}
+.swatch-info {}
+.swatch-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+}
+.swatch-hex {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: monospace;
+}
+
+/* ---- Warning note ---- */
+.known-issue {
+  background: var(--red-dim);
+  border: 1px solid rgba(235,87,87,0.25);
+  border-left: 4px solid var(--red);
+  border-radius: var(--r);
+  padding: 14px 18px;
+  font-size: 13.5px;
+  color: var(--soft);
+  line-height: 1.65;
+  margin-top: 8px;
+}
+.known-issue strong { color: var(--red); }
+
+/* ---- Footer ---- */
+.doc-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 32px;
+  margin-top: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.doc-footer .brand {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.doc-footer .brand span { color: var(--blue); }
+.doc-footer .meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ---- Utility ---- */
+.mt-4  { margin-top: 4px; }
+.mt-8  { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.mt-32 { margin-top: 32px; }
+.mb-4  { margin-bottom: 4px; }
+.mb-8  { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-20 { margin-bottom: 20px; }
+.text-muted { color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- ============================================================
+       HEADER
+  ============================================================ -->
+  <header class="doc-header">
+    <div class="eyebrow">Internal Product Reference</div>
+    <h1>JUTC Digital Transit System<br>Feature Reference</h1>
+    <p class="subtitle">
+      Comprehensive reference covering architecture, pitch-to-code mapping, feature inventory,
+      backend services, the four weak points found and resolved, Stitch MCP integration guide,
+      and setup credentials. Intended for engineers onboarding to or extending the JUTC monorepo.
+    </p>
+    <div class="doc-meta">
+      <span><strong>Monorepo:</strong> C:/Users/NETMERGE/Documents/JUTC/</span>
+      <span><strong>Apps:</strong> backend · mobile · admin</span>
+      <span><strong>Stack:</strong> Express / Expo / React 18</span>
+      <span><strong>Revision:</strong> 2026-05-07</span>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       TABLE OF CONTENTS
+  ============================================================ -->
+  <nav class="toc-card" id="top">
+    <h2>Table of Contents</h2>
+    <div class="toc-grid">
+      <a class="toc-item" href="#s1"><span class="toc-num">1</span>Status Legend</a>
+      <a class="toc-item" href="#s2"><span class="toc-num">2</span>Platform Architecture</a>
+      <a class="toc-item" href="#s3"><span class="toc-num">3</span>Pitch Slide Mapping (S1–S16)</a>
+      <a class="toc-item" href="#s4"><span class="toc-num">4</span>Passenger App Features</a>
+      <a class="toc-item" href="#s5"><span class="toc-num">5</span>Driver App Features</a>
+      <a class="toc-item" href="#s6"><span class="toc-num">6</span>Admin Dashboard Features</a>
+      <a class="toc-item" href="#s7"><span class="toc-num">7</span>Backend Services</a>
+      <a class="toc-item" href="#s8"><span class="toc-num">8</span>Four Weak Points Found &amp; Fixed</a>
+      <a class="toc-item" href="#s9"><span class="toc-num">9</span>Stitch MCP Frontend Guide</a>
+      <a class="toc-item" href="#s10"><span class="toc-num">10</span>Setup &amp; Credentials</a>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       SECTION 1 — STATUS LEGEND
+  ============================================================ -->
+  <section class="section" id="s1">
+    <div class="section-label">Section 1</div>
+    <h2>Status Legend</h2>
+    <p class="section-intro">
+      Every feature and claim in this document is tagged with one of four status indicators.
+      Use these to quickly understand what is production-ready, what has known gaps, what has been
+      actively repaired, and what is on the future roadmap.
+    </p>
+
+    <div class="grid-4">
+      <div class="card">
+        <div style="margin-bottom:10px;"><span class="badge badge-built badge-dot">BUILT</span></div>
+        <div style="font-size:13px;color:var(--soft);line-height:1.6;">
+          Fully implemented. Code exists, tests cover the happy path, and the feature is
+          accessible through the documented UI or API.
+        </div>
+      </div>
+      <div class="card">
+        <div style="margin-bottom:10px;"><span class="badge badge-partial badge-dot">PARTIAL</span></div>
+        <div style="font-size:13px;color:var(--soft);line-height:1.6;">
+          Implemented with known gaps. Core logic exists but edge cases, integrations, or
+          UI polish remain incomplete. Documented limitations included.
+        </div>
+      </div>
+      <div class="card">
+        <div style="margin-bottom:10px;"><span class="badge badge-fixed badge-dot">FIXED</span></div>
+        <div style="font-size:13px;color:var(--soft);line-height:1.6;">
+          A weakness was identified during review and has been resolved. See Section 8 for
+          full problem/solution/file details.
+        </div>
+      </div>
+      <div class="card">
+        <div style="margin-bottom:10px;"><span class="badge badge-aspire badge-dot">ASPIRATIONAL</span></div>
+        <div style="font-size:13px;color:var(--soft);line-height:1.6;">
+          Phase 3 target — not yet built. Claimed in pitch materials or roadmap but no
+          corresponding code exists in the current monorepo.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 2 — PLATFORM ARCHITECTURE
+  ============================================================ -->
+  <section class="section" id="s2">
+    <div class="section-label">Section 2</div>
+    <h2>Platform Architecture</h2>
+    <p class="section-intro">
+      The JUTC Digital Transit System is a Turborepo-style monorepo with three deployable
+      applications and one shared package. All apps are written in TypeScript.
+    </p>
+
+    <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;">Tech Stack</h3>
+    <div class="table-wrap mb-20">
+      <table>
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>Technology</th>
+            <th>Version / Notes</th>
+            <th>App</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>HTTP Server</td><td>Express.js</td><td>v4, TypeScript decorators</td><td>backend</td></tr>
+          <tr><td>ORM</td><td>Prisma</td><td>Client v5, schema in <code>prisma/schema.prisma</code></td><td>backend</td></tr>
+          <tr><td>Database</td><td>PostgreSQL</td><td>14+, TimescaleDB Phase 3 target</td><td>backend</td></tr>
+          <tr><td>Cache / Queues</td><td>Redis + BullMQ</td><td>Redis 7, BullMQ v5</td><td>backend</td></tr>
+          <tr><td>WebSockets</td><td>Socket.io</td><td>v4, event: <code>GPS_UPDATE</code>, <code>FARE_TAP</code></td><td>backend</td></tr>
+          <tr><td>Auth</td><td>JWT (access + refresh)</td><td>15 min / 7 day TTL, bcrypt passwords</td><td>backend</td></tr>
+          <tr><td>Push Notifications</td><td>Expo Push API</td><td>Batched 100 tokens/call — FIXED (FIX 1)</td><td>backend</td></tr>
+          <tr><td>Mobile Framework</td><td>Expo SDK 51</td><td>React Native 0.74, Expo Router v3</td><td>mobile</td></tr>
+          <tr><td>Navigation</td><td>Expo Router (file-based)</td><td>tabs layout per role</td><td>mobile</td></tr>
+          <tr><td>Maps</td><td>react-native-maps</td><td>MapView, Marker, Polyline</td><td>mobile</td></tr>
+          <tr><td>Admin Framework</td><td>React 18 + Vite</td><td>SPA, port 5173</td><td>admin</td></tr>
+          <tr><td>Admin Charts</td><td>Recharts</td><td>LineChart, BarChart — FIXED (FIX 2, 3)</td><td>admin</td></tr>
+          <tr><td>Admin Maps</td><td>Leaflet + react-leaflet</td><td>Live bus markers from Socket.io</td><td>admin</td></tr>
+          <tr><td>Shared Types</td><td>packages/shared</td><td>TypeScript interfaces, enums, utils</td><td>all</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;">Monorepo Structure</h3>
+    <div class="code-block"><span class="c-comment"># C:/Users/NETMERGE/Documents/JUTC/</span>
+<span class="c-key">apps/</span>
+  <span class="c-key">backend/</span>              <span class="c-comment"># Express API — port 3000</span>
+    <span class="c-key">src/</span>
+      controllers/      <span class="c-comment"># auth, admin, trip, smartcard …</span>
+      services/         <span class="c-comment"># business logic layer</span>
+      workers/          <span class="c-comment"># BullMQ job processors</span>
+      routes/           <span class="c-comment"># Express routers</span>
+      middleware/       <span class="c-comment"># auth guard, error handler</span>
+      socket/           <span class="c-comment"># Socket.io gateway</span>
+    prisma/
+      schema.prisma     <span class="c-comment"># Prisma schema</span>
+      seed.ts           <span class="c-comment"># Test data seeder</span>
+  <span class="c-key">mobile/</span>               <span class="c-comment"># Expo SDK 51 React Native</span>
+    app/
+      (passenger)/      <span class="c-comment"># Passenger tab layout</span>
+        index.tsx       <span class="c-comment"># Home screen</span>
+        tracking.tsx    <span class="c-comment"># Live map</span>
+        smartcard.tsx   <span class="c-comment"># SmartCard / QR</span>
+        report.tsx      <span class="c-comment"># Incident report</span>
+        notifications.tsx
+      (driver)/         <span class="c-comment"># Driver tab layout</span>
+        index.tsx       <span class="c-comment"># Shift management</span>
+        route.tsx       <span class="c-comment"># Route progression</span>
+        validate.tsx    <span class="c-comment"># Fare validation — FIXED (FIX 4)</span>
+        report.tsx      <span class="c-comment"># Incident report</span>
+  <span class="c-key">admin/</span>                <span class="c-comment"># React 18 + Vite SPA — port 5173</span>
+    src/
+      pages/            <span class="c-comment"># fleet, revenue, demand, maintenance …</span>
+      components/       <span class="c-comment"># shared UI components</span>
+<span class="c-key">packages/</span>
+  <span class="c-key">shared/</span>               <span class="c-comment"># Shared TypeScript types, constants, utils</span>
+    src/
+      types/
+      constants/
+      utils/</div>
+
+    <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-top:28px;margin-bottom:14px;">Application Purposes</h3>
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title" style="color:var(--blue);">apps/backend</div>
+        <p style="font-size:13px;color:var(--soft);line-height:1.65;">
+          REST API + Socket.io server. Handles authentication, fare transactions, GPS ingestion,
+          trip lifecycle, fraud detection, push notification dispatch, and analytics aggregation.
+          All mobile and admin apps consume this API.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--amber);">apps/mobile</div>
+        <p style="font-size:13px;color:var(--soft);line-height:1.65;">
+          Expo React Native app with two distinct role layouts: <strong style="color:var(--text);">passenger</strong>
+          (home, tracking, smartcard, reports, notifications) and
+          <strong style="color:var(--text);">driver</strong> (shift management, route progression,
+          fare validation, incident reporting).
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--green);">apps/admin</div>
+        <p style="font-size:13px;color:var(--soft);line-height:1.65;">
+          React 18 + Vite SPA for JUTC operations staff. Six pages: fleet overview with
+          Leaflet live map, revenue analytics, demand intelligence, maintenance control,
+          customer issues, and notification management.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 3 — PITCH SLIDE MAPPING
+  ============================================================ -->
+  <section class="section" id="s3">
+    <div class="section-label">Section 3</div>
+    <h2>Pitch Slide Mapping (S1–S16)</h2>
+    <p class="section-intro">
+      Every claim made in the 16-slide pitch deck maps to specific source files in the monorepo.
+      The table below provides the definitive slide-to-code reference.
+    </p>
+
+    <div class="table-wrap mb-32">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:60px;">Slide</th>
+            <th style="width:220px;">Title / Claim</th>
+            <th>Code Files / Implementation</th>
+            <th style="width:110px;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>S1</td>
+            <td>JUTC Digital Transit System — hero slide</td>
+            <td><code>apps/mobile/app/_layout.tsx</code>, <code>apps/admin/src/App.tsx</code></td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td>S2</td>
+            <td>The Problem — cash-only fares, ghost buses, no data</td>
+            <td>Context slide — no direct code mapping</td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td>S3</td>
+            <td>Our Solution — three-layer platform</td>
+            <td>Monorepo root: <code>apps/backend</code>, <code>apps/mobile</code>, <code>apps/admin</code></td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td>S4</td>
+            <td>Market Size — 300k daily JUTC riders</td>
+            <td>Context slide — seeded in <code>prisma/seed.ts</code> with test users</td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td>S5</td>
+            <td>One Trip Digitized — 6-step lifecycle</td>
+            <td colspan="2"><em>See expanded breakdown below this table</em></td>
+          </tr>
+          <tr>
+            <td>S6</td>
+            <td>Passenger Experience</td>
+            <td>
+              <code>(passenger)/index.tsx</code> (home + balance card)<br>
+              <code>(passenger)/tracking.tsx</code> (live map)<br>
+              <code>(passenger)/smartcard.tsx</code> (QR + balance)
+            </td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td>S7</td>
+            <td>Revenue Integrity — tap validation &amp; fraud</td>
+            <td>
+              <code>services/smartcard.service.ts</code> <code>tapCard()</code><br>
+              <code>services/fraud.service.ts</code> — 3 detection rules<br>
+              <code>workers/fraud.worker.ts</code>
+            </td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td>S8</td>
+            <td>Operational Intelligence — demand heatmap</td>
+            <td>
+              <code>services/analytics.service.ts</code> <code>getDemandHeatmap()</code><br>
+              Returns <code>{byHour, byStop, total}</code> — FIXED (FIX 3)<br>
+              <code>admin/src/pages/demand.tsx</code>
+            </td>
+            <td><span class="badge badge-fixed badge-dot">FIXED</span></td>
+          </tr>
+          <tr>
+            <td>S9</td>
+            <td>Fleet Health — driver checklist &amp; alerts</td>
+            <td>
+              <code>(driver)/index.tsx</code> pre-trip checklist<br>
+              <code>(driver)/report.tsx</code> defect submission<br>
+              <code>analytics.service.ts</code> <code>getMaintenanceAlerts()</code>
+            </td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td>S10</td>
+            <td>Safety Net — passenger incident reporting</td>
+            <td>
+              <code>(passenger)/report.tsx</code> — 6 incident types, safety toggle<br>
+              <code>services/trip.service.ts</code>
+            </td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td>S11</td>
+            <td>SmartCard Ecosystem — balance, QR, history</td>
+            <td>
+              <code>(passenger)/smartcard.tsx</code><br>
+              <code>services/smartcard.service.ts</code> — QR JWT generation<br>
+              <code>GET /smartcard/transactions</code>
+            </td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td>S12</td>
+            <td>Push Notifications — route alerts</td>
+            <td>
+              <code>services/notification.service.ts</code><br>
+              <code>workers/notification.worker.ts</code> — NEW (FIX 1)<br>
+              Expo Push API, 100-token batching
+            </td>
+            <td><span class="badge badge-fixed badge-dot">FIXED</span></td>
+          </tr>
+          <tr>
+            <td>S13</td>
+            <td>Admin Command Centre — live fleet overview</td>
+            <td>
+              <code>admin/src/pages/fleet.tsx</code><br>
+              Leaflet map + Socket.io GPS events<br>
+              KPI cards: active buses, revenue today, incidents
+            </td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td>S14</td>
+            <td>Tech Foundation — TimescaleDB, BigQuery warehouse</td>
+            <td>
+              PostgreSQL present — TimescaleDB extension not activated<br>
+              BigQuery pipeline not built<br>
+              Planned: Phase 3
+            </td>
+            <td><span class="badge badge-partial badge-dot">PARTIAL</span></td>
+          </tr>
+          <tr>
+            <td>S15</td>
+            <td>Business Model — tiered pricing</td>
+            <td>Context / pitch slide — no direct code mapping</td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td>S16</td>
+            <td>Roadmap — Phase 1→3</td>
+            <td>
+              Phase 1 (MVP): backend + mobile + admin — BUILT<br>
+              Phase 2 (Scale): SMS, enhanced fraud — PARTIAL<br>
+              Phase 3: TimescaleDB, BigQuery, ML ETA — ASPIRATIONAL
+            </td>
+            <td><span class="badge badge-partial badge-dot">PARTIAL</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- S5 Expanded -->
+    <div class="card mt-8">
+      <div class="card-title" style="color:var(--blue);font-size:15px;margin-bottom:20px;">
+        S5 — "One Trip Digitized" : 6-Step Lifecycle Detail
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h4>Step 1 — Passenger Opens App</h4>
+          <p>
+            <code>(passenger)/index.tsx</code> — fetches balance via
+            <code>GET /smartcard/balance</code>, renders active buses via
+            <code>GET /buses/active</code> (Socket.io fallback for live updates).
+          </p>
+        </div>
+        <div class="timeline-step">
+          <h4>Step 2 — Driver Starts Shift</h4>
+          <p>
+            <code>(driver)/index.tsx</code> — pre-trip checklist gated before
+            <code>POST /trips/start</code>. Bus ID and route selected from dropdown.
+            Trip record created in PostgreSQL, BullMQ job enqueued.
+          </p>
+        </div>
+        <div class="timeline-step">
+          <h4>Step 3 — Passenger Boards &amp; Taps SmartCard</h4>
+          <p>
+            <code>(driver)/validate.tsx</code> renders tap target UI. Card tap triggers
+            <code>POST /smartcard/tap</code> →
+            <code>smartcard.service.ts tapCard()</code> — atomic Prisma transaction:
+            debit balance, write <code>Transaction</code> record, emit <code>FARE_TAP</code>
+            Socket.io event, enqueue fraud job.
+          </p>
+        </div>
+        <div class="timeline-step">
+          <h4>Step 4 — Live GPS Tracking</h4>
+          <p>
+            Driver app emits location every 5 s via
+            <code>socket/gps.gateway.ts</code>. Backend
+            <code>workers/gps.worker.ts</code> batches 50 pings, flushes every 5 s to
+            <code>GpsEvent</code> table. Passenger
+            <code>(passenger)/tracking.tsx</code> receives <code>GPS_UPDATE</code> and moves
+            MapView marker in real time.
+          </p>
+        </div>
+        <div class="timeline-step">
+          <h4>Step 5 — ETA Calculation</h4>
+          <p>
+            <code>services/eta.service.ts</code> — haversine distance from current bus location
+            to each remaining stop, divided by average segment speed. Returns ETA + confidence
+            score (0–1). Displayed in <code>(passenger)/tracking.tsx</code> route pill.
+          </p>
+        </div>
+        <div class="timeline-step">
+          <h4>Step 6 — Trip End &amp; Analytics Write</h4>
+          <p>
+            Driver taps "End Trip" → <code>POST /trips/end</code> →
+            <code>trip.service.ts</code> writes trip summary (duration, fare revenue, stop count)
+            to PostgreSQL. <code>analytics.service.ts</code> aggregates on next cron cycle.
+            Admin <code>fleet.tsx</code> KPIs update on next poll.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 4 — PASSENGER APP FEATURES
+  ============================================================ -->
+  <section class="section" id="s4">
+    <div class="section-label">Section 4</div>
+    <h2>Passenger App Features</h2>
+    <p class="section-intro">
+      The passenger role layout lives at <code>apps/mobile/app/(passenger)/</code>.
+      Five screens accessible via bottom tab navigation. Role is determined at login and
+      persisted in the auth JWT.
+    </p>
+
+    <div class="grid-2">
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <h3>Home Screen</h3>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge badge-built badge-dot">BUILT</span>
+            <code style="font-size:11px;">index.tsx</code>
+          </div>
+        </div>
+        <div class="screen-body">
+          <ul class="feat-list">
+            <li>SmartCard balance card — J$ balance, card number, last top-up date</li>
+            <li>Active buses on your saved routes — pulls from <code>GET /buses/active</code></li>
+            <li>Quick actions: Top Up, Show QR, Report Issue</li>
+            <li>System alert banner — Socket.io <code>SYSTEM_ALERT</code> event</li>
+            <li>Saved routes chip list — persisted via AsyncStorage</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <h3>Live Tracking</h3>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge badge-built badge-dot">BUILT</span>
+            <code style="font-size:11px;">tracking.tsx</code>
+          </div>
+        </div>
+        <div class="screen-body">
+          <ul class="feat-list">
+            <li>Full-screen MapView (react-native-maps) centred on nearest bus</li>
+            <li>Live bus marker updates via Socket.io <code>GPS_UPDATE</code> event — no polling</li>
+            <li>Route polyline rendered from stop coordinates array</li>
+            <li>ETA pill per stop — from <code>eta.service.ts</code> confidence score</li>
+            <li>Route selector pills to switch between saved routes</li>
+            <li>Passenger count indicator on bus marker (from trip record)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <h3>SmartCard</h3>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge badge-built badge-dot">BUILT</span>
+            <code style="font-size:11px;">smartcard.tsx</code>
+          </div>
+        </div>
+        <div class="screen-body">
+          <ul class="feat-list">
+            <li>Balance display — real-time from <code>GET /smartcard/balance</code></li>
+            <li>QR ticket — JWT generated by <code>smartcard.service.ts</code>, 5-minute expiry</li>
+            <li>QR auto-refreshes 30 s before expiry</li>
+            <li>Transaction history list — <code>GET /smartcard/transactions</code></li>
+            <li>Filter chips: All / Fare / Top-Up / Refund — client-side filter</li>
+            <li>Each transaction row: type icon, route, amount, timestamp</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <h3>Report Incident</h3>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge badge-built badge-dot">BUILT</span>
+            <code style="font-size:11px;">report.tsx</code>
+          </div>
+        </div>
+        <div class="screen-body">
+          <ul class="feat-list">
+            <li>6 incident types: Overcrowding, Unsafe Driving, Harassment, Fare Dispute, Breakdown, Other</li>
+            <li>Safety toggle — marks incident as safety-critical, escalates priority</li>
+            <li>Optional free-text description field</li>
+            <li>Optional route and bus number fields — pre-filled from tracking context</li>
+            <li>Submits via <code>POST /incidents</code> → stored in <code>Incident</code> table</li>
+            <li>Success confirmation with reference number</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen-card" style="grid-column: 1 / -1;">
+        <div class="screen-header">
+          <h3>Notifications</h3>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge badge-fixed badge-dot">FIXED</span>
+            <code style="font-size:11px;">notifications.tsx</code>
+          </div>
+        </div>
+        <div class="screen-body">
+          <ul class="feat-list" style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;">
+            <li>Notification feed — <code>GET /notifications</code> paginated</li>
+            <li>Unread count badge on tab icon</li>
+            <li>Mark-as-read on tap — <code>PATCH /notifications/:id/read</code></li>
+            <li>Mark all read action button</li>
+            <li>Push notifications now delivered — FIX 1 resolved silent-drop bug</li>
+            <li>Notification types: Route Alert, Service Change, Promo, System</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 5 — DRIVER APP FEATURES
+  ============================================================ -->
+  <section class="section" id="s5">
+    <div class="section-label">Section 5</div>
+    <h2>Driver App Features</h2>
+    <p class="section-intro">
+      The driver role layout lives at <code>apps/mobile/app/(driver)/</code>. Four screens
+      accessible via bottom tabs. The driver role is enforced server-side — all driver endpoints
+      require <code>role: DRIVER</code> in the JWT payload.
+    </p>
+
+    <div class="grid-2">
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <h3>Shift Management</h3>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge badge-built badge-dot">BUILT</span>
+            <code style="font-size:11px;">(driver)/index.tsx</code>
+          </div>
+        </div>
+        <div class="screen-body">
+          <ul class="feat-list">
+            <li>Pre-trip safety checklist — 8 items (brakes, lights, wipers, doors, fire extinguisher, first aid, fare machine, fuel level)</li>
+            <li>All items must be ticked before Start Trip button activates</li>
+            <li>Bus selector dropdown — fetches assigned buses from <code>GET /buses/assigned</code></li>
+            <li>Route selector — fetches route list from <code>GET /routes</code></li>
+            <li>Start Trip button → <code>POST /trips/start</code></li>
+            <li>End Shift summary: trips completed, total fares collected, incidents logged</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <h3>Route Progression</h3>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge badge-built badge-dot">BUILT</span>
+            <code style="font-size:11px;">(driver)/route.tsx</code>
+          </div>
+        </div>
+        <div class="screen-body">
+          <ul class="feat-list">
+            <li>Live elapsed trip timer — updates every second</li>
+            <li>Stop timeline — vertical stepper with completed / current / upcoming states</li>
+            <li>Mark stop as arrived → <code>POST /trips/:id/stop-arrived</code></li>
+            <li>Delay buttons: +5 min, +10 min, +15 min — triggers passenger push notification</li>
+            <li>Emergency button — posts critical incident and alerts admin Socket.io channel</li>
+            <li>Passenger count at current stop — realtime tap events</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <h3>Fare Validation</h3>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge badge-fixed badge-dot">FIXED</span>
+            <code style="font-size:11px;">(driver)/validate.tsx</code>
+          </div>
+        </div>
+        <div class="screen-body">
+          <ul class="feat-list">
+            <li>Large tap target — NFC / QR scan area, full-width button</li>
+            <li>Animated status feedback: Success (green pulse), Declined (red shake), Fraud Flag (amber)</li>
+            <li>Last tap summary: passenger name initial, fare type, amount deducted</li>
+            <li>Manual Override sheet — 5 override reasons: Cash Paid, Exempt (Student), Exempt (Senior), Network Offline, Other</li>
+            <li>FIX 4: "Network Offline" reason records tap as OVERRIDE type, flagged for reconciliation — previously had no offline fallback</li>
+            <li>Override logged with driver ID + timestamp for audit trail</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <h3>Incident Report</h3>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge badge-built badge-dot">BUILT</span>
+            <code style="font-size:11px;">(driver)/report.tsx</code>
+          </div>
+        </div>
+        <div class="screen-body">
+          <ul class="feat-list">
+            <li>6 incident types: Passenger Altercation, Road Accident, Mechanical Failure, Fare Dispute, Obstruction, Other</li>
+            <li>Emergency toggle — bypasses queue, triggers immediate admin alert</li>
+            <li>Current location auto-captured from device GPS</li>
+            <li>Current bus and route pre-filled from active trip context</li>
+            <li>Submits to <code>POST /incidents</code> with <code>reporter: DRIVER</code> field</li>
+            <li>Admin incidents page shows driver-reported vs passenger-reported badge</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 6 — ADMIN DASHBOARD FEATURES
+  ============================================================ -->
+  <section class="section" id="s6">
+    <div class="section-label">Section 6</div>
+    <h2>Admin Dashboard Features</h2>
+    <p class="section-intro">
+      The admin SPA lives at <code>apps/admin/src/pages/</code>. Six pages accessible via
+      sidebar navigation. Roles with admin access: ADMIN, EXECUTIVE, DISPATCHER, SUPERVISOR.
+      Read-only access for EXECUTIVE role on maintenance and incidents pages.
+    </p>
+
+    <div class="grid-2">
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <h3>Fleet Overview</h3>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge badge-built badge-dot">BUILT</span>
+            <code style="font-size:11px;">pages/fleet.tsx</code>
+          </div>
+        </div>
+        <div class="screen-body">
+          <ul class="feat-list">
+            <li>KPI row: Active Buses, Revenue Today (J$), Open Incidents, Avg Delay (min)</li>
+            <li>Leaflet map with live bus markers — Socket.io <code>GPS_UPDATE</code> subscription</li>
+            <li>Marker colour: green (on-time), amber (delayed), red (breakdown)</li>
+            <li>Click marker → tooltip: bus ID, route, driver name, current stop, passenger count</li>
+            <li>Active trips table: bus, route, driver, departure time, pax, fare collected</li>
+            <li>Table sortable by any column; filterable by route</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <h3>Revenue Analytics</h3>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge badge-fixed badge-dot">FIXED</span>
+            <code style="font-size:11px;">pages/revenue.tsx</code>
+          </div>
+        </div>
+        <div class="screen-body">
+          <ul class="feat-list">
+            <li>Summary cards: Today, This Week, This Month, Avg Per Trip (J$)</li>
+            <li>LineChart (Recharts) rendering daily revenue series — FIXED (FIX 2)</li>
+            <li>Data from new endpoint: <code>GET /admin/revenue/daily</code> → <code>[{date, totalJMD}]</code></li>
+            <li>Date range selector: 7d / 30d / 90d</li>
+            <li>Fare type breakdown: Standard vs Student vs Override</li>
+            <li>Export CSV button — client-side download from chart data</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <h3>Demand Intelligence</h3>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge badge-fixed badge-dot">FIXED</span>
+            <code style="font-size:11px;">pages/demand.tsx</code>
+          </div>
+        </div>
+        <div class="screen-body">
+          <ul class="feat-list">
+            <li>Hourly BarChart — taps per hour 0–23, highlights peak hours</li>
+            <li>Per-stop horizontal bar chart — FIXED (FIX 3), now shows spatial breakdown</li>
+            <li>Both charts from updated <code>getDemandHeatmap()</code> returning <code>{byHour, byStop, total}</code></li>
+            <li>Route filter dropdown — re-fetches on change</li>
+            <li>Day-of-week selector: shows average demand pattern for selected day</li>
+            <li>Stop table below charts: stop name, total taps, avg wait time</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <h3>Maintenance Control</h3>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge badge-built badge-dot">BUILT</span>
+            <code style="font-size:11px;">pages/maintenance.tsx</code>
+          </div>
+        </div>
+        <div class="screen-body">
+          <ul class="feat-list">
+            <li>Open defects table — source: driver <code>report.tsx</code> submissions</li>
+            <li>Defect severity chips: Critical / High / Medium / Low</li>
+            <li>Breakdown watchlist — buses with active breakdown incidents flagged red</li>
+            <li>Overdue service list — buses past scheduled service date</li>
+            <li>Assign mechanic action per defect row</li>
+            <li>Mark resolved flow with resolution notes field</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <h3>Customer Issues</h3>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge badge-built badge-dot">BUILT</span>
+            <code style="font-size:11px;">pages/incidents.tsx</code>
+          </div>
+        </div>
+        <div class="screen-body">
+          <ul class="feat-list">
+            <li>Incident table with reporter badge: PASSENGER or DRIVER</li>
+            <li>Status chip: Open → Under Review → Resolved → Closed</li>
+            <li>Status transitions via dropdown — <code>PATCH /incidents/:id/status</code></li>
+            <li>Click row → detail drawer: full description, location, timestamp, route, bus</li>
+            <li>Filters: status, type, reporter role, date range</li>
+            <li>Safety-flagged incidents highlighted with red left border</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <h3>Notification Management</h3>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge badge-fixed badge-dot">FIXED</span>
+            <code style="font-size:11px;">pages/notifications.tsx</code>
+          </div>
+        </div>
+        <div class="screen-body">
+          <ul class="feat-list">
+            <li>Compose notification: title, body, target (All / Route / Individual)</li>
+            <li>Route selector — sends to last-30-day passengers of that route</li>
+            <li>Sends via <code>POST /admin/notifications</code> → enqueues BullMQ job</li>
+            <li>Now delivered — FIX 1 added the missing notification.worker.ts</li>
+            <li>Sent history table: time, target, reach count, delivery status</li>
+            <li>Delivery status from Expo Push API receipt polling</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 7 — BACKEND SERVICES
+  ============================================================ -->
+  <section class="section" id="s7">
+    <div class="section-label">Section 7</div>
+    <h2>Backend Services</h2>
+    <p class="section-intro">
+      All business logic lives in <code>apps/backend/src/services/</code>. Workers live in
+      <code>apps/backend/src/workers/</code>. Services are injected into controllers and
+      never import from controllers.
+    </p>
+
+    <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;">Service Layer</h3>
+    <div class="table-wrap mb-28">
+      <table>
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Key Methods</th>
+            <th>Description</th>
+            <th style="width:110px;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>auth.service.ts</code></td>
+            <td><code>login()</code>, <code>refresh()</code>, <code>logout()</code></td>
+            <td>Phone + password auth. Issues access JWT (15 min) and refresh JWT (7 days). Stores refresh token hash in DB. bcrypt cost 12.</td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td><code>smartcard.service.ts</code></td>
+            <td><code>tapCard()</code>, <code>generateQR()</code>, <code>topUp()</code>, <code>getBalance()</code></td>
+            <td>
+              <code>tapCard()</code> runs an atomic Prisma transaction: check balance ≥ fare, debit account, write <code>Transaction</code> record, emit <code>FARE_TAP</code> Socket.io event, enqueue fraud BullMQ job.
+              <code>generateQR()</code> issues signed JWT with <code>cardId</code>, <code>exp</code>, scoped secret.
+            </td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td><code>fraud.service.ts</code></td>
+            <td><code>evaluate(tap)</code></td>
+            <td>
+              Three Redis-backed detection rules:
+              (1) Velocity — same card tapped &gt;3× within 60 s → flag VELOCITY_FRAUD.
+              (2) Duplicate — same card + same bus within 30 s → flag DUPLICATE_TAP.
+              (3) Blacklist — card ID in Redis blacklist set → flag BLACKLISTED.
+              Flagged taps written to <code>FraudFlag</code> table, admin alerted.
+            </td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td><code>gps.service.ts</code></td>
+            <td><code>recordPing()</code>, <code>getBusLocation()</code>, <code>getActiveBuses()</code></td>
+            <td>Accepts GPS pings from driver app via Socket.io. Writes to <code>GpsEvent</code> table via worker batch. Serves latest location per bus for passenger tracking screen.</td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td><code>eta.service.ts</code></td>
+            <td><code>calculateETA(busId, stopId)</code></td>
+            <td>Haversine formula for distance from current GPS position to target stop. Divides by rolling average speed (last 5 segments). Returns <code>{etaMinutes, confidence}</code> where confidence drops below 0.5 if GPS age &gt;30 s.</td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td><code>notification.service.ts</code></td>
+            <td><code>queue(payload)</code>, <code>sendImmediate(tokens, msg)</code></td>
+            <td>Resolves target push tokens (by route or user ID), enqueues BullMQ job. <code>sendImmediate()</code> bypasses queue for emergency alerts. Push delivery now handled by FIX 1 worker.</td>
+            <td><span class="badge badge-fixed badge-dot">FIXED</span></td>
+          </tr>
+          <tr>
+            <td><code>trip.service.ts</code></td>
+            <td><code>startTrip()</code>, <code>endTrip()</code>, <code>recordStop()</code>, <code>getActiveTrips()</code></td>
+            <td>Full trip lifecycle management. <code>startTrip()</code> validates driver role and bus assignment. <code>endTrip()</code> calculates trip summary and updates bus availability. <code>getActiveTrips()</code> used by admin fleet page.</td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td><code>analytics.service.ts</code></td>
+            <td><code>getDemandHeatmap()</code>, <code>getRevenueDailySeries()</code>, <code>getMaintenanceAlerts()</code>, <code>getFleetKPIs()</code></td>
+            <td>
+              <code>getDemandHeatmap()</code> — FIXED (FIX 3) now returns <code>{byHour: number[], byStop: {stopId, name, count}[], total: number}</code>.
+              <code>getRevenueDailySeries()</code> — NEW (FIX 2) returns <code>[{date: string, totalJMD: number}]</code> bucketed by calendar day.
+            </td>
+            <td><span class="badge badge-fixed badge-dot">FIXED</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;">BullMQ Workers</h3>
+    <div class="table-wrap mb-28">
+      <table>
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Queue Name</th>
+            <th>Processing Logic</th>
+            <th style="width:110px;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>gps.worker.ts</code></td>
+            <td><code>gps-events</code></td>
+            <td>Accumulates GPS pings in memory array. Flush trigger: batch size 50 OR 5-second timer (whichever first). Batch-inserts to <code>GpsEvent</code> via Prisma <code>createMany()</code>.</td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td><code>fraud.worker.ts</code></td>
+            <td><code>fraud-checks</code></td>
+            <td>Dequeues tap events, calls <code>fraud.service.ts evaluate()</code> for each. On positive flag: writes <code>FraudFlag</code> record, emits admin Socket.io alert, increments Redis counter.</td>
+            <td><span class="badge badge-built badge-dot">BUILT</span></td>
+          </tr>
+          <tr>
+            <td><code>notification.worker.ts</code></td>
+            <td><code>notifications</code></td>
+            <td>
+              <strong style="color:var(--green);">NEW — FIX 1.</strong>
+              Dequeues notification jobs. Queries Prisma for push tokens of users who boarded the target route in the last 30 days (<code>Transaction.routeId</code> join). Splits tokens into 100-token batches, POSTs each to Expo Push API (<code>https://exp.host/--/api/v2/push/send</code>). Retries on 429 with exponential backoff. Logs delivery receipts.
+            </td>
+            <td><span class="badge badge-fixed badge-dot">FIXED</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;">Data Model Highlights</h3>
+    <div class="grid-2">
+
+      <div class="card">
+        <div class="card-title">Transaction Model</div>
+        <div class="code-block"><span class="c-comment">// prisma/schema.prisma</span>
+<span class="c-kw">model</span> <span class="c-fn">Transaction</span> {
+  id          <span class="c-fn">String</span>      @id @default(cuid())
+  cardId      <span class="c-fn">String</span>
+  tripId      <span class="c-fn">String</span>
+  busId       <span class="c-fn">String</span>
+  routeId     <span class="c-fn">String</span>
+  amount      <span class="c-fn">Decimal</span>    <span class="c-comment">// JMD</span>
+  fareType    <span class="c-fn">FareType</span>
+  txType      <span class="c-fn">TxType</span>     <span class="c-comment">// FARE | TOP_UP | REFUND | OVERRIDE</span>
+  overrideReason <span class="c-fn">String</span>?
+  fraudFlagged   <span class="c-fn">Boolean</span>   @default(false)
+  createdAt   <span class="c-fn">DateTime</span>   @default(now())
+}</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Enumerations</div>
+        <div class="code-block"><span class="c-comment">// packages/shared/src/constants/</span>
+
+<span class="c-kw">enum</span> <span class="c-fn">FareType</span> {
+  STANDARD  <span class="c-comment">// J$100</span>
+  STUDENT   <span class="c-comment">// J$60</span>
+}
+
+<span class="c-kw">enum</span> <span class="c-fn">UserRole</span> {
+  PASSENGER
+  DRIVER
+  DISPATCHER
+  SUPERVISOR
+  EXECUTIVE
+  ADMIN
+}
+
+<span class="c-kw">enum</span> <span class="c-fn">TxType</span> {
+  FARE | TOP_UP | REFUND | OVERRIDE
+}</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 8 — FOUR WEAK POINTS FOUND & FIXED
+  ============================================================ -->
+  <section class="section" id="s8">
+    <div class="section-label">Section 8</div>
+    <h2>Four Weak Points Found &amp; Fixed</h2>
+    <p class="section-intro">
+      During code review, four implementation weaknesses were identified where pitch claims
+      were not backed by working code. Each fix is documented with the exact problem,
+      the solution implemented, and the files changed.
+    </p>
+
+    <!-- FIX 1 -->
+    <div class="fix-block">
+      <div class="fix-header">
+        <div class="fix-icon" style="color:var(--green);">&#10003;</div>
+        <div>
+          <div class="fix-title">FIX 1 — Push Notification Worker Was Missing</div>
+          <div class="fix-sub">
+            <span class="badge badge-fixed badge-dot" style="margin-right:6px;">FIXED</span>
+            Notifications silently dropped — Expo Push API never called
+          </div>
+        </div>
+      </div>
+      <div class="fix-body">
+        <div class="fix-row">
+          <div class="fix-label problem">Problem</div>
+          <div class="fix-value">
+            <code>notification.service.ts</code> correctly queued push notification jobs to the
+            BullMQ <code>notifications</code> queue. However, no worker was registered to consume
+            this queue. Jobs piled up unprocessed and notifications were silently discarded.
+            Passengers and drivers never received any push alerts.
+          </div>
+        </div>
+        <div class="fix-row">
+          <div class="fix-label solution">Solution</div>
+          <div class="fix-value">
+            Created <code>workers/notification.worker.ts</code> that registers on the
+            <code>notifications</code> queue. For each job, it: (1) resolves the target
+            audience — if route-scoped, queries <code>Transaction</code> table for users who
+            boarded that route in the last 30 days; (2) fetches their Expo push tokens from
+            <code>UserDevice</code> table; (3) splits into 100-token batches to respect Expo
+            API limits; (4) POSTs each batch to <code>https://exp.host/--/api/v2/push/send</code>;
+            (5) implements exponential backoff on 429 responses; (6) logs push receipts.
+            Worker registered in <code>server.ts</code> startup sequence.
+          </div>
+        </div>
+        <div class="fix-row">
+          <div class="fix-label files">Files</div>
+          <div class="fix-value">
+            <code>apps/backend/src/workers/notification.worker.ts</code> (new file)<br>
+            <code>apps/backend/src/server.ts</code> (register worker on startup)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FIX 2 -->
+    <div class="fix-block">
+      <div class="fix-header">
+        <div class="fix-icon" style="color:var(--green);">&#10003;</div>
+        <div>
+          <div class="fix-title">FIX 2 — Revenue LineChart Was a Dead Import</div>
+          <div class="fix-sub">
+            <span class="badge badge-fixed badge-dot" style="margin-right:6px;">FIXED</span>
+            Admin revenue page imported Recharts but rendered nothing
+          </div>
+        </div>
+      </div>
+      <div class="fix-body">
+        <div class="fix-row">
+          <div class="fix-label problem">Problem</div>
+          <div class="fix-value">
+            <code>admin/src/pages/revenue.tsx</code> had <code>import {'{'} LineChart, Line, XAxis, YAxis {'}'} from 'recharts'</code>
+            at the top of the file but the JSX returned only static summary cards — the
+            LineChart component was imported but never placed in the render tree. The pitch
+            slide S8 shows a revenue trend chart. Investors and JUTC staff saw no chart.
+          </div>
+        </div>
+        <div class="fix-row">
+          <div class="fix-label solution">Solution</div>
+          <div class="fix-value">
+            Added <code>GET /admin/revenue/daily</code> endpoint to the backend returning
+            <code>[{'{'} date: string, totalJMD: number {'}'}]</code> bucketed by calendar day
+            (Prisma <code>groupBy</code> on <code>Transaction.createdAt</code> truncated to day).
+            Updated <code>revenue.tsx</code> to fetch this endpoint on mount and render a
+            <code>&lt;LineChart&gt;</code> with <code>date</code> on X-axis and
+            <code>totalJMD</code> on Y-axis. Added date range selector (7d/30d/90d) that
+            refetches with query param.
+          </div>
+        </div>
+        <div class="fix-row">
+          <div class="fix-label files">Files</div>
+          <div class="fix-value">
+            <code>apps/backend/src/services/analytics.service.ts</code> — added <code>getRevenueDailySeries(days)</code><br>
+            <code>apps/backend/src/controllers/admin.controller.ts</code> — added handler<br>
+            <code>apps/backend/src/routes/admin.routes.ts</code> — added route<br>
+            <code>apps/admin/src/pages/revenue.tsx</code> — connected chart
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FIX 3 -->
+    <div class="fix-block">
+      <div class="fix-header">
+        <div class="fix-icon" style="color:var(--green);">&#10003;</div>
+        <div>
+          <div class="fix-title">FIX 3 — Demand Heatmap Had No Stop Dimension</div>
+          <div class="fix-sub">
+            <span class="badge badge-fixed badge-dot" style="margin-right:6px;">FIXED</span>
+            getDemandHeatmap() returned only hourly totals — no spatial insight
+          </div>
+        </div>
+      </div>
+      <div class="fix-body">
+        <div class="fix-row">
+          <div class="fix-label problem">Problem</div>
+          <div class="fix-value">
+            <code>analytics.service.ts getDemandHeatmap()</code> returned
+            <code>{'{'} counts: number[] {'}'}</code> — a 24-element array of hourly tap totals.
+            The admin demand page rendered a bar chart of this data. The pitch slide S8 claims
+            "Demand Intelligence" with spatial stop-level heatmap capability. There was no
+            per-stop breakdown anywhere in the codebase — operators could not identify which
+            stops were chronically overcrowded.
+          </div>
+        </div>
+        <div class="fix-row">
+          <div class="fix-label solution">Solution</div>
+          <div class="fix-value">
+            Extended <code>getDemandHeatmap(routeId?, date?)</code> to return
+            <code>{'{'} byHour: number[24], byStop: {'{'} stopId: string, name: string, count: number {'}'}[], total: number {'}'}</code>.
+            The <code>byStop</code> array is produced by a Prisma <code>groupBy</code> on
+            <code>Transaction.stopId</code> joined with <code>Stop.name</code>, ordered
+            descending by count. Admin <code>demand.tsx</code> now renders two charts side-by-side:
+            the existing hourly BarChart plus a new horizontal BarChart of per-stop demand,
+            and a sortable stop table below.
+          </div>
+        </div>
+        <div class="fix-row">
+          <div class="fix-label files">Files</div>
+          <div class="fix-value">
+            <code>apps/backend/src/services/analytics.service.ts</code> — updated <code>getDemandHeatmap()</code> return type<br>
+            <code>apps/admin/src/pages/demand.tsx</code> — added per-stop horizontal bar chart
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FIX 4 -->
+    <div class="fix-block">
+      <div class="fix-header">
+        <div class="fix-icon" style="color:var(--green);">&#10003;</div>
+        <div>
+          <div class="fix-title">FIX 4 — Validate Screen Had No Offline Fallback</div>
+          <div class="fix-sub">
+            <span class="badge badge-fixed badge-dot" style="margin-right:6px;">FIXED</span>
+            Pitch claims offline-first but validate.tsx failed silently with no network
+          </div>
+        </div>
+      </div>
+      <div class="fix-body">
+        <div class="fix-row">
+          <div class="fix-label problem">Problem</div>
+          <div class="fix-value">
+            <code>(driver)/validate.tsx</code> called <code>api.post('/smartcard/tap', payload)</code>
+            directly. If the device had no network connection (common in rural Jamaica routes),
+            the tap failed silently — the status UI showed an error, the passenger was not
+            charged, and no record was created. The pitch explicitly claims "offline-first"
+            capability. There was no queue, no retry, and no manual override for network failure.
+          </div>
+        </div>
+        <div class="fix-row">
+          <div class="fix-label solution">Solution</div>
+          <div class="fix-value">
+            Added "Network Offline" as a first-class override reason in the manual override
+            bottom sheet. When selected, the driver confirms the passenger has boarded, and
+            the app calls <code>POST /smartcard/tap</code> with <code>txType: OVERRIDE</code>
+            and <code>overrideReason: 'NETWORK_OFFLINE'</code> — this still requires network
+            for the override record itself but is explicitly documented as the protocol.
+            The <code>Transaction</code> record is written with <code>fraudFlagged: false</code>
+            and a reconciliation flag so finance can audit cash-equivalent boardings.
+            The full offline queue approach (local SQLite + sync) is tracked as a Phase 3 enhancement.
+          </div>
+        </div>
+        <div class="fix-row">
+          <div class="fix-label files">Files</div>
+          <div class="fix-value">
+            <code>apps/mobile/app/(driver)/validate.tsx</code> — added Network Offline override reason<br>
+            <code>apps/backend/src/services/smartcard.service.ts</code> — handle OVERRIDE txType with reconciliation flag
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Known Issues -->
+    <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-top:32px;margin-bottom:12px;">Known Issues Not Yet Fixed</h3>
+    <div class="known-issue">
+      <strong>SMS Alerts Not Integrated</strong> — <code>notification.service.ts</code> only delivers
+      push notifications via Expo Push API. SMS via Twilio or a Caribbean SMS gateway is referenced
+      in the pitch but not implemented. Passengers without the app installed receive no service alerts.
+      Tracked as Phase 2 target.
+    </div>
+    <div class="known-issue mt-8">
+      <strong>TimescaleDB and BigQuery Not Integrated</strong> — Slide S14 mentions TimescaleDB for
+      time-series GPS data and BigQuery for data warehouse analytics. The current deployment uses
+      vanilla PostgreSQL 14 with no time-series extension activated and no BigQuery pipeline.
+      All analytics run as Prisma aggregate queries against PostgreSQL, which will not scale past
+      ~500k daily transactions without optimisation. Tracked as Phase 3 target.
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 9 — STITCH MCP FRONTEND GUIDE
+  ============================================================ -->
+  <section class="section" id="s9">
+    <div class="section-label">Section 9</div>
+    <h2>Stitch MCP Frontend Guide</h2>
+    <p class="section-intro">
+      Stitch is the 21st.dev MCP (Model Context Protocol) component builder. It generates
+      production-ready React components from natural-language prompts, pre-wired with design tokens.
+      Use it to accelerate new admin pages, replace inline-styled components, and build new
+      mobile screens without breaking the JUTC design system.
+    </p>
+
+    <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;">JUTC Design Tokens (CSS Custom Properties)</h3>
+    <div class="token-grid mb-20">
+      <div class="token-swatch"><div class="swatch-dot" style="background:#0F1115;"></div><div class="swatch-info"><div class="swatch-name">--bg</div><div class="swatch-hex">#0F1115</div></div></div>
+      <div class="token-swatch"><div class="swatch-dot" style="background:#1A1D23;"></div><div class="swatch-info"><div class="swatch-name">--surface</div><div class="swatch-hex">#1A1D23</div></div></div>
+      <div class="token-swatch"><div class="swatch-dot" style="background:#20252f;"></div><div class="swatch-info"><div class="swatch-name">--surface2</div><div class="swatch-hex">#20252f</div></div></div>
+      <div class="token-swatch"><div class="swatch-dot" style="background:#2a2f38;"></div><div class="swatch-info"><div class="swatch-name">--border</div><div class="swatch-hex">#2a2f38</div></div></div>
+      <div class="token-swatch"><div class="swatch-dot" style="background:#2F80ED;"></div><div class="swatch-info"><div class="swatch-name">--blue</div><div class="swatch-hex">#2F80ED</div></div></div>
+      <div class="token-swatch"><div class="swatch-dot" style="background:#F2C94C;"></div><div class="swatch-info"><div class="swatch-name">--amber</div><div class="swatch-hex">#F2C94C</div></div></div>
+      <div class="token-swatch"><div class="swatch-dot" style="background:#27AE60;"></div><div class="swatch-info"><div class="swatch-name">--green</div><div class="swatch-hex">#27AE60</div></div></div>
+      <div class="token-swatch"><div class="swatch-dot" style="background:#EB5757;"></div><div class="swatch-info"><div class="swatch-name">--red</div><div class="swatch-hex">#EB5757</div></div></div>
+      <div class="token-swatch"><div class="swatch-dot" style="background:#F5F7FA;"></div><div class="swatch-info"><div class="swatch-name">--text</div><div class="swatch-hex">#F5F7FA</div></div></div>
+      <div class="token-swatch"><div class="swatch-dot" style="background:#8c94a3;"></div><div class="swatch-info"><div class="swatch-name">--muted</div><div class="swatch-hex">#8c94a3</div></div></div>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px;">When to Use Stitch</h3>
+    <div class="grid-3 mb-24">
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">New Admin Pages</div>
+        <p style="font-size:13px;color:var(--soft);line-height:1.6;">Building a new page (e.g., Driver Performance, Route Planning)? Use Stitch to scaffold the card layout, table, and chart wrapper with JUTC tokens pre-applied rather than hand-writing CSS.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Replacing Inline Styles</div>
+        <p style="font-size:13px;color:var(--soft);line-height:1.6;">Several early components in <code>apps/admin/src/components/</code> use inline style objects. Use Stitch to regenerate these with CSS custom properties for easier theming and maintenance.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">New Mobile Screens</div>
+        <p style="font-size:13px;color:var(--soft);line-height:1.6;">For Phase 2 mobile screens (e.g., journey planner, top-up flow), use Stitch with the JUTC StyleSheet token constants from <code>packages/shared/src/constants/theme.ts</code>.</p>
+      </div>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px;">Example Invocation</h3>
+    <div class="code-block"><span class="c-comment">// Invoke Stitch via Claude Code (21st.dev MCP)</span>
+<span class="c-comment">// In your Claude Code session:</span>
+
+<span class="c-fn">mcp__magic__21st_magic_component_builder</span>({
+  message: <span class="c-str">`Create a React admin page for JUTC Driver Performance.
+
+  Design tokens (CSS vars):
+  --bg: #0F1115, --surface: #1A1D23, --border: #2a2f38
+  --blue: #2F80ED, --amber: #F2C94C, --green: #27AE60
+  --red: #EB5757, --text: #F5F7FA, --muted: #8c94a3
+  Font: Manrope from Google Fonts
+
+  Layout:
+  - KPI row: Trips Today, Total Fares (J$), Incidents Filed, Avg Trip Duration
+  - Recharts LineChart: trips per day (last 30 days), data prop: {date, count}
+  - Driver table: name, route, trips today, fares today, last seen, status badge
+  - Status badges: On Duty (green), Off Duty (muted), Flagged (amber)
+  - Filter: by route, by status
+
+  Match the dark theme exactly. Card bg #1A1D23, border-radius 12px.`</span>
+})
+
+<span class="c-comment">// Stitch returns a ready-to-use React component file.
+// Drop it into: apps/admin/src/pages/driver-performance.tsx
+// Register in: apps/admin/src/App.tsx route list</span></div>
+
+    <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-top:28px;margin-bottom:12px;">Pages Best Suited for Stitch Enhancement</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Page / Component</th>
+            <th>Current State</th>
+            <th>Stitch Enhancement Goal</th>
+            <th style="width:100px;">Priority</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>admin/pages/maintenance.tsx</code></td>
+            <td>Plain table with inline styles</td>
+            <td>Severity chip system, assignment drawer, overdue highlight row</td>
+            <td><span class="badge badge-partial badge-dot">HIGH</span></td>
+          </tr>
+          <tr>
+            <td><code>admin/pages/incidents.tsx</code></td>
+            <td>Basic list, no status transitions</td>
+            <td>Kanban-style status board or table with inline status dropdown + detail drawer</td>
+            <td><span class="badge badge-partial badge-dot">HIGH</span></td>
+          </tr>
+          <tr>
+            <td><code>admin/components/KpiCard</code></td>
+            <td>Multiple duplicate implementations</td>
+            <td>Single shared KPI card component with trend arrow, delta %, and colour theme</td>
+            <td><span class="badge badge-built badge-dot">MEDIUM</span></td>
+          </tr>
+          <tr>
+            <td><code>mobile/(passenger)/index.tsx</code></td>
+            <td>Balance card with basic styling</td>
+            <td>Glassmorphism SmartCard with card number masking, chip graphic, tap-to-reveal</td>
+            <td><span class="badge badge-built badge-dot">MEDIUM</span></td>
+          </tr>
+          <tr>
+            <td>Driver Performance page (new)</td>
+            <td>Does not exist — Phase 2</td>
+            <td>Full new page per the example invocation above</td>
+            <td><span class="badge badge-aspire badge-dot">PHASE 2</span></td>
+          </tr>
+          <tr>
+            <td>Route Planning page (new)</td>
+            <td>Does not exist — Phase 3</td>
+            <td>Interactive Leaflet route editor with stop drag-and-drop</td>
+            <td><span class="badge badge-aspire badge-dot">PHASE 3</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 10 — SETUP & CREDENTIALS
+  ============================================================ -->
+  <section class="section" id="s10">
+    <div class="section-label">Section 10</div>
+    <h2>Setup &amp; Credentials</h2>
+    <p class="section-intro">
+      Complete instructions for spinning up the JUTC monorepo locally. Requires Node.js 20+,
+      PostgreSQL 14+, and Redis 7+ running locally or via Docker.
+    </p>
+
+    <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px;">Setup Commands</h3>
+    <div class="code-block mb-24"><span class="c-comment"># 1. Clone or navigate to the monorepo</span>
+cd C:/Users/NETMERGE/Documents/JUTC
+
+<span class="c-comment"># 2. Install all workspace dependencies
+#    --legacy-peer-deps required for Expo SDK 51 peer resolution</span>
+npm install --legacy-peer-deps
+
+<span class="c-comment"># 3. Configure environment variables (see table below)</span>
+cp apps/backend/.env.example apps/backend/.env
+<span class="c-comment"># Edit apps/backend/.env with your DATABASE_URL, REDIS_URL, JWT_SECRET etc.</span>
+
+<span class="c-comment"># 4. Run database migrations</span>
+cd apps/backend
+npx prisma migrate dev --name init
+
+<span class="c-comment"># 5. Seed test data (creates all test users, routes 22A and 21, stops, SmartCard)</span>
+npx prisma db seed
+
+<span class="c-comment"># 6. Start all three apps concurrently from monorepo root</span>
+cd ../..
+npm run dev
+
+<span class="c-comment"># Alternatively, start individually:</span>
+npm run dev --workspace=apps/backend   <span class="c-comment"># http://localhost:3000</span>
+npm run dev --workspace=apps/admin     <span class="c-comment"># http://localhost:5173</span>
+npx expo start --workspace=apps/mobile <span class="c-comment"># Expo DevTools</span></div>
+
+    <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px;">Required Environment Variables</h3>
+    <div class="env-block mb-24">
+      <div class="env-row">
+        <div class="env-key">DATABASE_URL</div>
+        <div class="env-desc">PostgreSQL connection string. e.g. <code>postgresql://postgres:password@localhost:5432/jutc_db</code></div>
+      </div>
+      <div class="env-row">
+        <div class="env-key">REDIS_URL</div>
+        <div class="env-desc">Redis connection string. e.g. <code>redis://localhost:6379</code></div>
+      </div>
+      <div class="env-row">
+        <div class="env-key">JWT_SECRET</div>
+        <div class="env-desc">Secret for signing access tokens. Min 32 characters. Generate with <code>openssl rand -hex 32</code></div>
+      </div>
+      <div class="env-row">
+        <div class="env-key">JWT_REFRESH_SECRET</div>
+        <div class="env-desc">Separate secret for refresh tokens. Must differ from JWT_SECRET.</div>
+      </div>
+      <div class="env-row">
+        <div class="env-key">QR_SECRET</div>
+        <div class="env-desc">Secret for signing SmartCard QR JWTs. Scoped separately to limit blast radius if leaked.</div>
+      </div>
+      <div class="env-row">
+        <div class="env-key">PORT</div>
+        <div class="env-desc">Backend HTTP port. Default <code>3000</code>.</div>
+      </div>
+      <div class="env-row">
+        <div class="env-key">NODE_ENV</div>
+        <div class="env-desc"><code>development</code> | <code>production</code>. Controls error detail level in responses.</div>
+      </div>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px;">Test Credentials</h3>
+    <p class="text-muted mb-12">
+      All created by <code>prisma/seed.ts</code>. Phone numbers follow Jamaican format (+1876…).
+      Passwords meet minimum policy (8 chars, 1 uppercase, 1 digit, 1 special).
+    </p>
+    <div class="cred-grid mb-20">
+      <div class="cred-card">
+        <div class="cred-role">Admin</div>
+        <div class="cred-phone">+18765550001</div>
+        <div class="cred-pass">Admin@1234</div>
+        <div class="cred-note">Full platform access. All 6 admin pages. Can send notifications and manage all entities.</div>
+      </div>
+      <div class="cred-card">
+        <div class="cred-role">Executive</div>
+        <div class="cred-phone">+18765550002</div>
+        <div class="cred-pass">Exec@1234</div>
+        <div class="cred-note">Read-only access to fleet, revenue, demand, and maintenance pages. Cannot modify records.</div>
+      </div>
+      <div class="cred-card">
+        <div class="cred-role">Driver</div>
+        <div class="cred-phone">+18765550010</div>
+        <div class="cred-pass">Driver@1234</div>
+        <div class="cred-note">Assigned to Bus #JW-42, Route 22A. Pre-trip checklist complete in seed. SmartCard reader enabled.</div>
+      </div>
+      <div class="cred-card">
+        <div class="cred-role">Passenger</div>
+        <div class="cred-phone">+18765550020</div>
+        <div class="cred-pass">Pass@1234</div>
+        <div class="cred-note">SmartCard balance J$500. Saved routes: 22A and 21. 3 seeded transaction records in history.</div>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:rgba(242,201,76,0.3);background:var(--amber-dim);">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <div style="font-size:18px;flex-shrink:0;margin-top:1px;">&#9888;</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--amber);margin-bottom:6px;">Security Note — Credentials</div>
+          <div style="font-size:13px;color:var(--soft);line-height:1.65;">
+            These credentials are for local development only. They are written into
+            <code>prisma/seed.ts</code> and must never be used in staging or production.
+            Production seeding must use environment-injected secrets.
+            Rotate all JWT secrets and database passwords before any production deployment.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="doc-footer">
+    <div class="brand">JUTC <span>Digital Transit System</span></div>
+    <div class="meta">
+      Internal Product Reference &nbsp;|&nbsp; Generated 2026-05-07 &nbsp;|&nbsp;
+      Monorepo: C:/Users/NETMERGE/Documents/JUTC/ &nbsp;|&nbsp;
+      <a href="#top" style="color:var(--blue);text-decoration:none;">Back to top &uarr;</a>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

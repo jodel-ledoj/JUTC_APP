@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "939804690289",
+    "project_id": "jutc-app-c3838",
+    "storage_bucket": "jutc-app-c3838.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:939804690289:android:88bde952f255e757ab58d0",
+        "android_client_info": {
+          "package_name": "com.jutc.digital"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBV940Dpk6Ho8odrCa_McvGqwmFqcptrEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

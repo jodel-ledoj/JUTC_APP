@@ -1,0 +1,2056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JUTC Digital Transit System — Pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   MANDATORY VIEWPORT BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0F1115;
+  --surface:   #1A1D23;
+  --surface2:  #20252f;
+  --border:    #2a2f38;
+  --blue:      #2F80ED;
+  --blue-soft: #4b98ff;
+  --blue-dim:  rgba(47,128,237,0.12);
+  --amber:     #F2C94C;
+  --green:     #27AE60;
+  --red:       #EB5757;
+  --text:      #F5F7FA;
+  --muted:     #8c94a3;
+  --soft:      #b6bdc9;
+  --r:         14px;
+
+  --title:  clamp(2rem,   5.5vw, 4.2rem);
+  --h2:     clamp(1.4rem, 3.2vw, 2.6rem);
+  --h3:     clamp(1rem,   2.2vw, 1.6rem);
+  --body:   clamp(0.78rem,1.35vw, 1.05rem);
+  --small:  clamp(0.65rem,1vw,   0.82rem);
+  --pad:    clamp(1.5rem, 5vw,   5rem);
+}
+
+html, body {
+  height: 100%; width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: 'Manrope', system-ui, sans-serif;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   SLIDE SYSTEM
+   ============================================================ */
+#deck {
+  width: 100vw; height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  width: 100vw; height: 100vh; height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--pad);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1);
+  will-change: opacity;
+}
+
+.slide.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* content enter animation */
+.slide.active .reveal {
+  animation: revealUp 0.65s cubic-bezier(0.22,1,0.36,1) both;
+}
+.slide.active .reveal:nth-child(1) { animation-delay: 0.1s; }
+.slide.active .reveal:nth-child(2) { animation-delay: 0.22s; }
+.slide.active .reveal:nth-child(3) { animation-delay: 0.34s; }
+.slide.active .reveal:nth-child(4) { animation-delay: 0.46s; }
+.slide.active .reveal:nth-child(5) { animation-delay: 0.58s; }
+.slide.active .reveal:nth-child(6) { animation-delay: 0.70s; }
+
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* stagger for child items */
+.stagger > * { opacity: 0; }
+.slide.active .stagger > *:nth-child(1) { animation: revealUp 0.6s 0.25s cubic-bezier(0.22,1,0.36,1) both; }
+.slide.active .stagger > *:nth-child(2) { animation: revealUp 0.6s 0.40s cubic-bezier(0.22,1,0.36,1) both; }
+.slide.active .stagger > *:nth-child(3) { animation: revealUp 0.6s 0.55s cubic-bezier(0.22,1,0.36,1) both; }
+.slide.active .stagger > *:nth-child(4) { animation: revealUp 0.6s 0.70s cubic-bezier(0.22,1,0.36,1) both; }
+.slide.active .stagger > *:nth-child(5) { animation: revealUp 0.6s 0.85s cubic-bezier(0.22,1,0.36,1) both; }
+.slide.active .stagger > *:nth-child(6) { animation: revealUp 0.6s 1.00s cubic-bezier(0.22,1,0.36,1) both; }
+
+/* ============================================================
+   CHROME
+   ============================================================ */
+#chrome {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+}
+
+#slide-counter {
+  position: fixed;
+  bottom: clamp(1rem,3vh,2rem);
+  right: clamp(1.5rem,4vw,3rem);
+  font-size: var(--small);
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+#kbd-hint {
+  position: fixed;
+  bottom: clamp(1rem,3vh,2rem);
+  left: clamp(1.5rem,4vw,3rem);
+  font-size: var(--small);
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* nav arrows */
+#nav-prev, #nav-next {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px; height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: rgba(26,29,35,0.7);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--soft);
+  font-size: 1rem;
+  transition: border-color 0.2s, color 0.2s, opacity 0.2s;
+  pointer-events: all;
+  opacity: 0.4;
+  z-index: 100;
+}
+#nav-prev { left: clamp(0.75rem,2vw,1.5rem); }
+#nav-next { right: clamp(0.75rem,2vw,1.5rem); }
+#nav-prev:hover, #nav-next:hover { border-color: var(--blue); color: var(--blue); opacity: 1; }
+
+/* progress bar */
+#progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--blue);
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  z-index: 200;
+}
+
+/* ============================================================
+   CANVAS BACKGROUND (title + closing)
+   ============================================================ */
+.canvas-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.slide > *:not(.canvas-bg) { position: relative; z-index: 1; }
+
+/* ============================================================
+   SHARED COMPONENTS
+   ============================================================ */
+.label {
+  font-size: var(--small);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.label-blue { color: var(--blue); }
+
+.rule {
+  width: 48px; height: 2px;
+  background: var(--blue);
+  border-radius: 2px;
+  margin: clamp(0.6rem,1.5vh,1.2rem) 0;
+}
+
+.rule-amber { background: var(--amber); }
+.rule-green { background: var(--green); }
+.rule-red   { background: var(--red); }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: clamp(1rem,2.5vh,2rem) clamp(1rem,2vw,1.8rem);
+}
+
+.card-accent-blue  { border-top: 2px solid var(--blue); }
+.card-accent-amber { border-top: 2px solid var(--amber); }
+.card-accent-red   { border-top: 2px solid var(--red); }
+.card-accent-green { border-top: 2px solid var(--green); }
+
+/* ============================================================
+   SLIDE 1 — TITLE
+   ============================================================ */
+#s1 {
+  text-align: center;
+  background: var(--bg);
+}
+
+#s1 .eyebrow {
+  font-size: var(--small);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: clamp(0.8rem,2vh,1.4rem);
+}
+
+#s1 h1 {
+  font-size: var(--title);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  max-width: 14ch;
+  margin: 0 auto;
+}
+
+#s1 h1 em {
+  font-style: normal;
+  color: var(--blue);
+}
+
+#s1 .sub {
+  margin-top: clamp(1rem,2.5vh,1.8rem);
+  font-size: var(--h3);
+  font-weight: 400;
+  color: var(--soft);
+  max-width: 46ch;
+  line-height: 1.55;
+}
+
+#s1 .tagline {
+  margin-top: clamp(2rem,5vh,3.5rem);
+  font-size: var(--small);
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+
+/* ============================================================
+   SLIDE 2 — THE PROBLEM
+   ============================================================ */
+#s2 { background: var(--bg); }
+
+#s2 .col-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(0.8rem,2vw,1.6rem);
+  width: 100%;
+  max-width: min(90vw,1100px);
+  margin-top: clamp(1.2rem,3vh,2rem);
+}
+
+.prob-col {
+  padding: clamp(1rem,2.5vh,1.8rem) clamp(1rem,2vw,1.6rem);
+  background: var(--surface);
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+}
+
+.prob-col h3 {
+  font-size: var(--h3);
+  font-weight: 700;
+  margin-bottom: clamp(0.6rem,1.5vh,1rem);
+}
+
+.prob-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.4rem,1vh,0.7rem);
+}
+
+.prob-col ul li {
+  font-size: var(--body);
+  color: var(--soft);
+  line-height: 1.45;
+  padding-left: 1.1em;
+  position: relative;
+}
+
+.prob-col ul li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--muted);
+  font-size: 0.85em;
+}
+
+/* ============================================================
+   SLIDE 3 — WHY NOW
+   ============================================================ */
+#s3 { background: var(--bg); }
+
+#s3 .why-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: clamp(0.8rem,2vw,1.4rem);
+  max-width: min(90vw,1100px);
+  width: 100%;
+  margin-top: clamp(1.2rem,3vh,2rem);
+}
+
+.why-card {
+  padding: clamp(1.2rem,3vh,2.2rem) clamp(1rem,2.5vw,2rem);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.5rem,1.5vh,1rem);
+}
+
+.why-card .num {
+  font-size: clamp(2rem,5vw,3.8rem);
+  font-weight: 800;
+  color: var(--blue);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.why-card p {
+  font-size: var(--body);
+  color: var(--soft);
+  line-height: 1.55;
+}
+
+/* ============================================================
+   SLIDE 4 — THE SOLUTION
+   ============================================================ */
+#s4 { background: var(--bg); }
+
+#s4 .arch {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: min(90vw, 720px);
+  width: 100%;
+  margin-top: clamp(1.2rem,3vh,2rem);
+  position: relative;
+}
+
+.arch-layer {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem,3vw,2rem);
+  padding: clamp(0.9rem,2.2vh,1.5rem) clamp(1.2rem,3vw,2rem);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  margin-bottom: clamp(0.4rem,1vh,0.7rem);
+  transition: border-color 0.3s;
+}
+
+.arch-layer:hover { border-color: var(--blue-soft); }
+
+.arch-icon {
+  width: clamp(36px,5vw,48px);
+  height: clamp(36px,5vw,48px);
+  border-radius: 10px;
+  background: var(--blue-dim);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: clamp(1rem,2vw,1.3rem);
+}
+
+.arch-text h4 {
+  font-size: var(--h3);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.arch-text p {
+  font-size: var(--body);
+  color: var(--muted);
+  margin-top: 0.2em;
+}
+
+.arch-connector {
+  position: absolute;
+  left: clamp(28px,4.5vw,40px);
+  top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, var(--blue), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============================================================
+   SLIDE 5 — ONE TRIP DIGITIZED
+   ============================================================ */
+#s5 { background: var(--bg); }
+
+#s5 .timeline {
+  display: grid;
+  grid-template-columns: repeat(6,1fr);
+  gap: clamp(0.4rem,1vw,0.8rem);
+  max-width: min(96vw,1200px);
+  width: 100%;
+  margin-top: clamp(1rem,2.5vh,1.8rem);
+}
+
+.tl-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: clamp(0.4rem,1vh,0.7rem);
+  position: relative;
+}
+
+.tl-step::after {
+  content: '';
+  position: absolute;
+  top: 22px;
+  right: calc(-1 * clamp(0.2rem, 0.5vw, 0.4rem));
+  width: 50%;
+  height: 1px;
+  background: var(--border);
+}
+
+.tl-step:last-child::after { display: none; }
+
+.tl-dot {
+  width: clamp(36px,4.5vw,48px);
+  height: clamp(36px,4.5vw,48px);
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(0.9rem,1.5vw,1.2rem);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.tl-step h5 {
+  font-size: var(--small);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.tl-step p {
+  font-size: clamp(0.6rem,0.9vw,0.75rem);
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+#s5 .tagline-row {
+  margin-top: clamp(1.2rem,3vh,2rem);
+  font-size: var(--h3);
+  font-weight: 300;
+  color: var(--soft);
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+#s5 .tagline-row strong { color: var(--text); font-weight: 700; }
+
+/* ============================================================
+   SLIDE 6 — PASSENGER EXPERIENCE
+   ============================================================ */
+#s6 { background: var(--bg); }
+
+#s6 .phones {
+  display: flex;
+  gap: clamp(1.2rem,3vw,2.5rem);
+  align-items: flex-end;
+  margin-top: clamp(1rem,2.5vh,1.8rem);
+}
+
+.phone {
+  width: clamp(130px,16vw,200px);
+  height: clamp(240px,30vw,360px);
+  background: var(--surface);
+  border-radius: clamp(14px,2vw,24px);
+  border: 1.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  animation: float 4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.phone:nth-child(2) { animation-delay: -1.3s; transform: translateY(-8px); }
+.phone:nth-child(3) { animation-delay: -2.6s; }
+
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+
+.phone-notch {
+  width: 40%; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 10px auto 0;
+}
+
+.phone-screen {
+  flex: 1;
+  padding: clamp(0.5rem,1vw,0.8rem);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ps-row {
+  height: clamp(8px,1.2vh,12px);
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.ps-row.accent { background: var(--blue-dim); border: 1px solid var(--blue); width: 70%; }
+.ps-row.tall   { height: clamp(14px,2vh,20px); width: 85%; }
+.ps-row.short  { width: 55%; }
+.ps-row.blue   { background: var(--blue); width: 45%; height: clamp(24px,3vh,32px); border-radius: 6px; }
+.ps-row.grid2  {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  height: clamp(28px,3.5vh,38px);
+  background: transparent;
+}
+.ps-row.grid2 span {
+  background: var(--surface2);
+  border-radius: 4px;
+  display: block;
+  border: 1px solid var(--border);
+}
+
+.phone-label {
+  font-size: var(--small);
+  font-weight: 600;
+  color: var(--soft);
+  text-align: center;
+  margin-top: clamp(0.4rem,1vh,0.7rem);
+}
+
+/* ============================================================
+   SLIDE 7 — REVENUE INTEGRITY
+   ============================================================ */
+#s7 {
+  background: var(--bg);
+  position: relative;
+}
+
+#s7 .grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+#s7 .big-line {
+  font-size: clamp(1.4rem,3.5vw,2.8rem);
+  font-weight: 800;
+  line-height: 1.15;
+  max-width: 20ch;
+  text-align: center;
+  letter-spacing: -0.02em;
+}
+
+#s7 .feat-row {
+  display: flex;
+  gap: clamp(0.8rem,2vw,1.5rem);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: clamp(1rem,2.5vh,2rem);
+  max-width: min(90vw,900px);
+}
+
+.feat-pill {
+  padding: clamp(0.5rem,1.5vh,0.9rem) clamp(1rem,2.5vw,1.8rem);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: var(--body);
+  font-weight: 600;
+  color: var(--soft);
+  white-space: nowrap;
+  transition: border-color 0.25s, color 0.25s;
+}
+
+.feat-pill:hover { border-color: var(--blue); color: var(--text); }
+
+/* ============================================================
+   SLIDE 8 — OPERATIONAL INTELLIGENCE
+   ============================================================ */
+#s8 { background: var(--bg); }
+
+#s8 .two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.5rem,4vw,3rem);
+  max-width: min(90vw,1050px);
+  width: 100%;
+  margin-top: clamp(1.2rem,3vh,2rem);
+  align-items: center;
+}
+
+.heat-map {
+  display: grid;
+  grid-template-columns: repeat(8,1fr);
+  grid-template-rows: repeat(5,1fr);
+  gap: 4px;
+  aspect-ratio: 1.6;
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.hm-cell {
+  border-radius: 3px;
+  animation: hmPulse 3s ease-in-out infinite;
+}
+
+@keyframes hmPulse {
+  0%,100% { opacity: 0.7; }
+  50%      { opacity: 1; }
+}
+
+#s8 .insight-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.6rem,1.8vh,1.1rem);
+}
+
+#s8 .insight-list li {
+  font-size: var(--body);
+  color: var(--soft);
+  line-height: 1.5;
+  padding-left: clamp(1rem,2.5vw,1.5rem);
+  border-left: 2px solid var(--blue);
+}
+
+/* ============================================================
+   SLIDE 9 — FLEET HEALTH
+   ============================================================ */
+#s9 { background: var(--bg); }
+
+#s9 .health-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: clamp(0.8rem,2vw,1.4rem);
+  max-width: min(90vw,1050px);
+  width: 100%;
+  margin-top: clamp(1.2rem,3vh,2rem);
+}
+
+.health-card {
+  padding: clamp(1.2rem,3vh,2rem) clamp(1rem,2.5vw,1.8rem);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+}
+
+.health-card .icon {
+  font-size: clamp(1.4rem,3vw,2rem);
+  margin-bottom: clamp(0.5rem,1.5vh,0.9rem);
+}
+
+.health-card h4 {
+  font-size: var(--h3);
+  font-weight: 700;
+  margin-bottom: clamp(0.4rem,1vh,0.6rem);
+}
+
+.health-card p {
+  font-size: var(--body);
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+#s9 .stat-bar {
+  margin-top: clamp(1.2rem,3vh,2rem);
+  padding: clamp(0.8rem,2vh,1.2rem) clamp(1.2rem,3vw,2rem);
+  background: var(--blue-dim);
+  border: 1px solid rgba(47,128,237,0.25);
+  border-radius: var(--r);
+  max-width: min(90vw,1050px);
+  width: 100%;
+  font-size: var(--body);
+  color: var(--soft);
+  text-align: center;
+}
+
+#s9 .stat-bar strong { color: var(--blue-soft); }
+
+/* ============================================================
+   SLIDE 10 — PROBLEM → SOLUTION MAP
+   ============================================================ */
+#s10 { background: var(--bg); }
+
+#s10 .map-table {
+  width: 100%;
+  max-width: min(90vw,900px);
+  border-collapse: separate;
+  border-spacing: 0 clamp(0.3rem,0.8vh,0.6rem);
+  margin-top: clamp(1.2rem,3vh,2rem);
+}
+
+.map-table .map-row td {
+  padding: clamp(0.7rem,2vh,1.1rem) clamp(1rem,2.5vw,1.8rem);
+  background: var(--surface);
+  font-size: var(--body);
+  vertical-align: middle;
+}
+
+.map-table .map-row td:first-child {
+  color: var(--muted);
+  border-radius: var(--r) 0 0 var(--r);
+  border: 1px solid var(--border);
+  border-right: none;
+  width: 48%;
+}
+
+.map-table .map-row td.arrow {
+  background: var(--bg);
+  color: var(--muted);
+  text-align: center;
+  width: 6%;
+  font-size: 1rem;
+  border: none;
+  padding: 0 4px;
+}
+
+.map-table .map-row td:last-child {
+  color: var(--blue-soft);
+  font-weight: 600;
+  border-radius: 0 var(--r) var(--r) 0;
+  border: 1px solid rgba(47,128,237,0.25);
+  border-left: none;
+  background: rgba(47,128,237,0.06);
+}
+
+/* ============================================================
+   SLIDE 11 — BUSINESS VALUE
+   ============================================================ */
+#s11 { background: var(--bg); }
+
+#s11 .quad {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(0.8rem,2vw,1.2rem);
+  max-width: min(90vw,1000px);
+  width: 100%;
+  margin-top: clamp(1.2rem,3vh,2rem);
+}
+
+.quad-card {
+  padding: clamp(1rem,2.5vh,1.8rem) clamp(1rem,2.5vw,1.8rem);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+}
+
+.quad-card h4 {
+  font-size: var(--body);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: clamp(0.5rem,1.2vh,0.8rem);
+}
+
+.quad-card ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.25rem,0.7vh,0.45rem);
+}
+
+.quad-card ul li {
+  font-size: var(--body);
+  color: var(--muted);
+  line-height: 1.4;
+  padding-left: 1em;
+  position: relative;
+}
+
+.quad-card ul li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: var(--blue);
+  font-size: 1.2em;
+  top: -0.05em;
+}
+
+/* ============================================================
+   SLIDE 12 — ROADMAP
+   ============================================================ */
+#s12 { background: var(--bg); }
+
+#s12 .phases {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: clamp(0.8rem,2vw,1.4rem);
+  max-width: min(90vw,1100px);
+  width: 100%;
+  margin-top: clamp(1.2rem,3vh,2rem);
+  position: relative;
+}
+
+#s12 .phases::before {
+  content: '';
+  position: absolute;
+  top: clamp(22px,3.5vw,34px);
+  left: 33%;
+  right: 33%;
+  height: 1px;
+  background: linear-gradient(90deg, var(--blue) 0%, var(--blue-soft) 50%, var(--border) 100%);
+  z-index: 0;
+}
+
+.phase-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: clamp(1rem,2.5vh,1.8rem) clamp(1rem,2.5vw,1.6rem);
+  position: relative;
+  z-index: 1;
+}
+
+.phase-card.active-phase { border-color: var(--blue); }
+
+.phase-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(28px,4vw,40px);
+  height: clamp(28px,4vw,40px);
+  border-radius: 50%;
+  background: var(--blue);
+  color: var(--text);
+  font-size: var(--small);
+  font-weight: 800;
+  margin-bottom: clamp(0.5rem,1.5vh,0.8rem);
+}
+
+.phase-card:not(.active-phase) .phase-num {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  color: var(--muted);
+}
+
+.phase-card h4 {
+  font-size: var(--h3);
+  font-weight: 700;
+  margin-bottom: clamp(0.3rem,0.8vh,0.5rem);
+}
+
+.phase-card .period {
+  font-size: var(--small);
+  color: var(--blue);
+  font-weight: 600;
+  margin-bottom: clamp(0.5rem,1.2vh,0.8rem);
+}
+
+.phase-card ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.3rem,0.8vh,0.5rem);
+}
+
+.phase-card ul li {
+  font-size: var(--body);
+  color: var(--muted);
+  line-height: 1.4;
+  padding-left: 0.9em;
+  position: relative;
+}
+
+.phase-card ul li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--border);
+  font-size: 0.8em;
+}
+
+/* ============================================================
+   SLIDE 13 — INVESTMENT & COST (new)
+   ============================================================ */
+#s13 { background: var(--bg); }
+
+#s13 .cost-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.2rem,3vw,2.4rem);
+  max-width: min(92vw,1080px);
+  width: 100%;
+  margin-top: clamp(1rem,2.5vh,1.8rem);
+  align-items: start;
+}
+
+#s13 .total-block {
+  padding: clamp(1.2rem,3vh,2rem) clamp(1.2rem,3vw,2rem);
+  background: var(--blue-dim);
+  border: 1px solid rgba(47,128,237,0.3);
+  border-radius: var(--r);
+}
+
+#s13 .total-block .total-label {
+  font-size: var(--small);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 0.3em;
+}
+
+#s13 .total-block .total-figure {
+  font-size: clamp(2rem,5vw,3.6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  line-height: 1;
+}
+
+#s13 .total-block .total-sub {
+  font-size: var(--body);
+  color: var(--soft);
+  margin-top: 0.4em;
+  line-height: 1.5;
+}
+
+.phase-cost-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin-top: clamp(0.6rem,1.5vh,1rem);
+}
+
+.phase-cost-table thead th {
+  padding: clamp(0.45rem,1.2vh,0.7rem) clamp(0.8rem,2vw,1.2rem);
+  background: var(--surface2);
+  text-align: left;
+  font-size: var(--small);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.phase-cost-table tbody tr { border-top: 1px solid var(--border); }
+
+.phase-cost-table tbody td {
+  padding: clamp(0.5rem,1.3vh,0.8rem) clamp(0.8rem,2vw,1.2rem);
+  font-size: var(--body);
+  background: var(--surface);
+  vertical-align: middle;
+}
+
+.phase-cost-table tbody td:first-child { color: var(--soft); font-weight: 600; }
+.phase-cost-table tbody td:nth-child(2) { color: var(--muted); font-size: var(--small); }
+.phase-cost-table tbody td:last-child { color: var(--blue-soft); font-weight: 700; text-align: right; white-space: nowrap; }
+
+.phase-cost-table tfoot td {
+  padding: clamp(0.5rem,1.3vh,0.8rem) clamp(0.8rem,2vw,1.2rem);
+  background: var(--surface2);
+  border-top: 1px solid var(--border);
+  font-size: var(--body);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.phase-cost-table tfoot td:last-child {
+  color: var(--amber);
+  text-align: right;
+  font-size: var(--h3);
+}
+
+.ops-cost-block {
+  padding: clamp(0.8rem,2vh,1.3rem) clamp(0.8rem,2vw,1.4rem);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  margin-top: clamp(0.6rem,1.5vh,1rem);
+}
+
+.ops-cost-block .ops-title {
+  font-size: var(--small);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-bottom: clamp(0.4rem,1vh,0.6rem);
+}
+
+.ops-cost-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--body);
+  color: var(--muted);
+  padding: 3px 0;
+}
+
+.ops-cost-row span:last-child { color: var(--soft); font-weight: 600; }
+
+.roi-note {
+  margin-top: clamp(0.6rem,1.5vh,0.9rem);
+  padding: clamp(0.6rem,1.5vh,0.9rem) clamp(0.8rem,2vw,1.2rem);
+  background: rgba(39,174,96,0.08);
+  border: 1px solid rgba(39,174,96,0.25);
+  border-radius: 8px;
+  font-size: var(--small);
+  color: var(--soft);
+  line-height: 1.5;
+}
+
+.roi-note strong { color: var(--green); }
+
+/* ============================================================
+   SLIDE 14 — COMPETITIVE POSITIONING (was 13)
+   ============================================================ */
+#s14c { background: var(--bg); }
+
+#s13 .diff-grid {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: clamp(0.8rem,2vw,1.2rem);
+  max-width: min(90vw,900px);
+  width: 100%;
+  margin-top: clamp(1.2rem,3vh,2rem);
+}
+
+.diff-card {
+  padding: clamp(1rem,2.5vh,1.8rem) clamp(1rem,2.5vw,1.8rem);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.4rem,1vh,0.6rem);
+}
+
+.diff-card h4 {
+  font-size: var(--body);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.diff-card p {
+  font-size: var(--body);
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.diff-card .tag {
+  display: inline-block;
+  font-size: var(--small);
+  font-weight: 600;
+  color: var(--blue);
+  background: var(--blue-dim);
+  border-radius: 100px;
+  padding: 2px 10px;
+  letter-spacing: 0.06em;
+  align-self: flex-start;
+}
+
+/* ============================================================
+   SLIDE 14 — TECHNICAL FOUNDATION
+   ============================================================ */
+#s14 { background: var(--bg); }
+
+#s14 .tech-table {
+  width: 100%;
+  max-width: min(90vw,780px);
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: clamp(1.2rem,3vh,2rem);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.tech-table thead th {
+  padding: clamp(0.6rem,1.5vh,0.9rem) clamp(1rem,2.5vw,1.8rem);
+  background: var(--surface2);
+  text-align: left;
+  font-size: var(--small);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.tech-table tbody tr {
+  border-top: 1px solid var(--border);
+}
+
+.tech-table tbody td {
+  padding: clamp(0.6rem,1.5vh,0.9rem) clamp(1rem,2.5vw,1.8rem);
+  font-size: var(--body);
+  background: var(--surface);
+}
+
+.tech-table tbody td:first-child {
+  color: var(--soft);
+  font-weight: 500;
+  width: 30%;
+}
+
+.tech-table tbody td:last-child {
+  color: var(--muted);
+}
+
+.tech-table tbody tr:hover td {
+  background: var(--surface2);
+}
+
+/* ============================================================
+   SLIDE 15 — TEAM
+   ============================================================ */
+#s15 { background: var(--bg); }
+
+#s15 .team-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: clamp(0.8rem,2vw,1.2rem);
+  max-width: min(90vw,950px);
+  width: 100%;
+  margin-top: clamp(1.2rem,3vh,2rem);
+}
+
+.team-card {
+  padding: clamp(0.9rem,2.2vh,1.5rem) clamp(1rem,2.5vw,1.5rem);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+}
+
+.team-card h4 {
+  font-size: var(--body);
+  font-weight: 700;
+  margin-bottom: 0.2em;
+}
+
+.team-card p {
+  font-size: var(--small);
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ============================================================
+   SLIDE 16 — CLOSING
+   ============================================================ */
+#s16 {
+  background: var(--bg);
+  text-align: center;
+}
+
+#s16 blockquote {
+  max-width: min(90vw,700px);
+  font-size: clamp(1rem,2.4vw,1.8rem);
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--soft);
+  letter-spacing: 0.01em;
+  quotes: none;
+}
+
+#s16 blockquote strong { color: var(--text); font-weight: 700; }
+
+#s16 .closing-name {
+  margin-top: clamp(2rem,5vh,3rem);
+  font-size: var(--body);
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+#s16 .cta {
+  margin-top: clamp(1rem,2.5vh,1.6rem);
+  font-size: var(--h3);
+  font-weight: 700;
+  color: var(--blue-soft);
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .slide { transition-duration: 0.01ms !important; }
+  .slide.active .reveal, .slide.active .stagger > * { animation-duration: 0.01ms !important; }
+  .phone { animation: none !important; }
+  .hm-cell { animation: none !important; }
+}
+
+/* ============================================================
+   SHORT-HEIGHT OVERRIDES
+   ============================================================ */
+@media (max-height: 700px) {
+  :root {
+    --title: clamp(1.4rem,4.5vw,2.8rem);
+    --h2:    clamp(1.1rem,2.8vw,1.9rem);
+    --h3:    clamp(0.85rem,1.8vw,1.3rem);
+    --body:  clamp(0.68rem,1.1vw,0.88rem);
+    --pad:   clamp(1rem,3vw,2.5rem);
+  }
+}
+@media (max-height: 580px) {
+  :root { --pad: clamp(0.6rem,2vw,1.5rem); }
+  #kbd-hint { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+  <!-- ====================================================
+       SLIDE 1 — TITLE
+       ==================================================== -->
+  <section class="slide" id="s1" data-index="0">
+    <canvas class="canvas-bg" id="canvas1"></canvas>
+    <p class="eyebrow reveal">National Public Transport Platform</p>
+    <h1 class="reveal">JUTC <em>Digital</em><br>Transit System</h1>
+    <p class="sub reveal">Modernizing how Jamaica rides, pays,<br>and trusts public transport</p>
+    <p class="tagline reveal">Confidential Pitch — 2026</p>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 2 — THE PROBLEM
+       ==================================================== -->
+  <section class="slide" id="s2" data-index="1">
+    <p class="label reveal">The Problem</p>
+    <div class="rule reveal"></div>
+    <h2 style="font-size:var(--h2);font-weight:800;letter-spacing:-0.02em;max-width:26ch;" class="reveal">
+      Three interconnected failures holding JUTC back
+    </h2>
+    <div class="col-grid stagger">
+      <div class="prob-col card-accent-blue">
+        <h3>Riders</h3>
+        <ul>
+          <li>No arrival visibility at stops</li>
+          <li>Fare deductions with no record</li>
+          <li>Smart card is a black box</li>
+        </ul>
+      </div>
+      <div class="prob-col card-accent-amber">
+        <h3>Operations</h3>
+        <ul>
+          <li>Revenue leaking through cash &amp; overrides</li>
+          <li>Fleet dispatched without real-time visibility</li>
+          <li>No demand data for planning</li>
+        </ul>
+      </div>
+      <div class="prob-col card-accent-red">
+        <h3>The Institution</h3>
+        <ul>
+          <li>Eroding trust, declining ridership</li>
+          <li>Financial performance gap widening</li>
+          <li>No evidence base for capital decisions</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 3 — WHY NOW
+       ==================================================== -->
+  <section class="slide" id="s3" data-index="2">
+    <p class="label reveal">Why Now</p>
+    <div class="rule reveal"></div>
+    <h2 style="font-size:var(--h2);font-weight:800;letter-spacing:-0.02em;" class="reveal">
+      Three conditions aligned for the first time
+    </h2>
+    <div class="why-grid stagger">
+      <div class="why-card">
+        <div class="num">01</div>
+        <p>Mobile penetration in Jamaica has crossed the threshold for a transit app to reach meaningful scale — including students and older commuters.</p>
+      </div>
+      <div class="why-card">
+        <div class="num">02</div>
+        <p>Smart card infrastructure already exists in the JUTC ecosystem. What's missing is the transparent digital layer above it.</p>
+      </div>
+      <div class="why-card">
+        <div class="num">03</div>
+        <p>Funders, regulators, and government increasingly demand evidence-based fleet investment decisions. JUTC cannot provide that without a data platform.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 4 — THE SOLUTION
+       ==================================================== -->
+  <section class="slide" id="s4" data-index="3">
+    <p class="label reveal">The Solution</p>
+    <div class="rule reveal"></div>
+    <h2 style="font-size:var(--h2);font-weight:800;letter-spacing:-0.02em;max-width:28ch;" class="reveal">
+      One connected platform across four layers
+    </h2>
+    <div class="arch stagger">
+      <div class="arch-layer">
+        <div class="arch-icon">📱</div>
+        <div class="arch-text">
+          <h4>Passenger Mobile App</h4>
+          <p>Live tracking · Smart card · Alerts · Incident reporting</p>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-icon">🚌</div>
+        <div class="arch-text">
+          <h4>Driver App + Onboard Validator</h4>
+          <p>Shift management · Trip logging · Fare validation · Offline-first</p>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-icon">📊</div>
+        <div class="arch-text">
+          <h4>Admin Operations Dashboard</h4>
+          <p>Fleet map · Revenue analytics · Demand heatmaps · Maintenance</p>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-icon">⚙️</div>
+        <div class="arch-text">
+          <h4>Backend · Payments · Telemetry · AI</h4>
+          <p>GPS ingestion · ETA engine · Fraud detection · Analytics warehouse</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 5 — ONE TRIP DIGITIZED
+       ==================================================== -->
+  <section class="slide" id="s5" data-index="4">
+    <p class="label reveal">Product Walkthrough</p>
+    <div class="rule reveal"></div>
+    <h2 style="font-size:var(--h2);font-weight:800;letter-spacing:-0.02em;" class="reveal">
+      One trip, fully digitized
+    </h2>
+    <div class="timeline stagger">
+      <div class="tl-step">
+        <div class="tl-dot">📍</div>
+        <h5>Rider checks app</h5>
+        <p>Balance, next bus, route status — one glance</p>
+      </div>
+      <div class="tl-step">
+        <div class="tl-dot">💳</div>
+        <h5>Boards & taps card</h5>
+        <p>Fare validated in &lt;1s, balance updates instantly</p>
+      </div>
+      <div class="tl-step">
+        <div class="tl-dot">🔔</div>
+        <h5>Delay alert fires</h5>
+        <p>ETA drift detected — push notification sent before stop</p>
+      </div>
+      <div class="tl-step">
+        <div class="tl-dot">🗂️</div>
+        <h5>Driver logs trip</h5>
+        <p>Stop progression, delay cause, load — all recorded</p>
+      </div>
+      <div class="tl-step">
+        <div class="tl-dot">💰</div>
+        <h5>Finance records fare</h5>
+        <p>Signed, timestamped, tied to bus, route, driver</p>
+      </div>
+      <div class="tl-step">
+        <div class="tl-dot">🔧</div>
+        <h5>Maintenance flagged</h5>
+        <p>Brake warning logged — bus queued for depot check</p>
+      </div>
+    </div>
+    <p class="tagline-row reveal">
+      <strong>Every action. Every layer.</strong> One system.
+    </p>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 6 — PASSENGER EXPERIENCE
+       ==================================================== -->
+  <section class="slide" id="s6" data-index="5">
+    <p class="label reveal">Passenger Experience</p>
+    <div class="rule reveal"></div>
+    <h2 style="font-size:var(--h2);font-weight:800;letter-spacing:-0.02em;" class="reveal">
+      Everything a rider needs, in three screens
+    </h2>
+    <div class="phones stagger">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.6rem;">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="ps-row accent"></div>
+            <div class="ps-row tall"></div>
+            <div class="ps-row blue"></div>
+            <div class="ps-row short"></div>
+            <div class="ps-row"></div>
+            <div class="ps-row grid2"><span></span><span></span></div>
+            <div class="ps-row short"></div>
+            <div class="ps-row"></div>
+          </div>
+        </div>
+        <span class="phone-label">Home — Balance &amp; Next Bus</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.6rem;">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen" style="padding:0;position:relative;background:#0d1620;overflow:hidden;">
+            <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 40% 50%,rgba(47,128,237,0.18) 0%,transparent 70%);"></div>
+            <div style="position:absolute;top:30%;left:45%;width:12px;height:12px;background:var(--blue);border-radius:50%;box-shadow:0 0 8px var(--blue);"></div>
+            <div style="position:absolute;top:50%;left:25%;width:9px;height:9px;background:var(--blue-soft);border-radius:50%;opacity:0.8;"></div>
+            <div style="position:absolute;top:20%;left:60%;width:8px;height:8px;background:var(--amber);border-radius:50%;opacity:0.7;"></div>
+            <div style="position:absolute;bottom:0;left:0;right:0;height:35%;background:var(--surface);border-top:1px solid var(--border);padding:6px 8px;">
+              <div style="height:4px;background:var(--blue);border-radius:2px;width:60%;margin-bottom:5px;"></div>
+              <div style="height:3px;background:var(--border);border-radius:2px;width:80%;margin-bottom:4px;"></div>
+              <div style="height:3px;background:var(--border);border-radius:2px;width:55%;"></div>
+            </div>
+          </div>
+        </div>
+        <span class="phone-label">Live Map — Bus Positions &amp; ETA</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.6rem;">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="ps-row accent" style="width:90%;height:clamp(20px,3vh,28px);"></div>
+            <div style="display:flex;gap:4px;margin-top:2px;">
+              <div style="flex:1;height:4px;background:var(--blue);border-radius:2px;"></div>
+              <div style="flex:1;height:4px;background:var(--border);border-radius:2px;"></div>
+              <div style="flex:1;height:4px;background:var(--border);border-radius:2px;"></div>
+            </div>
+            <div class="ps-row" style="margin-top:4px;"></div>
+            <div class="ps-row short"></div>
+            <div class="ps-row"></div>
+            <div class="ps-row short"></div>
+            <div class="ps-row"></div>
+            <div class="ps-row short"></div>
+          </div>
+        </div>
+        <span class="phone-label">Smart Card — Transaction History</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 7 — REVENUE INTEGRITY
+       ==================================================== -->
+  <section class="slide" id="s7" data-index="6">
+    <div class="grid-bg"></div>
+    <p class="label label-blue reveal">Revenue Integrity</p>
+    <div class="rule reveal"></div>
+    <h2 class="big-line reveal">
+      Every fare. Signed.<br>Timestamped. Auditable.
+    </h2>
+    <p style="font-size:var(--body);color:var(--muted);max-width:46ch;text-align:center;margin-top:clamp(0.6rem,1.5vh,1rem);line-height:1.6;" class="reveal">
+      From tap to ledger in under a second. Every event linked to bus, route, driver, validator, and shift.
+    </p>
+    <div class="feat-row stagger">
+      <div class="feat-pill">Digital validation</div>
+      <div class="feat-pill">Signed audit trail</div>
+      <div class="feat-pill">Fraud anomaly engine</div>
+      <div class="feat-pill">Clean finance reconciliation</div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 8 — OPERATIONAL INTELLIGENCE
+       ==================================================== -->
+  <section class="slide" id="s8" data-index="7">
+    <p class="label reveal">Operational Intelligence</p>
+    <div class="rule reveal"></div>
+    <h2 style="font-size:var(--h2);font-weight:800;letter-spacing:-0.02em;" class="reveal">
+      Stop guessing. Start seeing.
+    </h2>
+    <div class="two-col reveal">
+      <div class="heat-map" id="heatmap"></div>
+      <div>
+        <ul class="insight-list stagger">
+          <li>Real boarding counts by stop &amp; time window</li>
+          <li>Peak-hour overload detection by corridor</li>
+          <li>Missed trip &amp; lateness tracking</li>
+          <li>Route optimization recommendations — reviewed before action</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 9 — FLEET HEALTH
+       ==================================================== -->
+  <section class="slide" id="s9" data-index="8">
+    <p class="label reveal">Fleet Health</p>
+    <div class="rule reveal"></div>
+    <h2 style="font-size:var(--h2);font-weight:800;letter-spacing:-0.02em;" class="reveal">
+      Catch the failure before peak hour.
+    </h2>
+    <div class="health-grid stagger">
+      <div class="health-card card-accent-blue">
+        <div class="icon">📋</div>
+        <h4>Pre-Trip Checklists</h4>
+        <p>Drivers confirm brakes, lights, tires, validator, and cleanliness before every departure.</p>
+      </div>
+      <div class="health-card card-accent-amber">
+        <div class="icon">⚠️</div>
+        <h4>In-Service Defect Reporting</h4>
+        <p>Drivers log faults immediately with issue type, photo, and safety status. Dispatch sees it instantly.</p>
+      </div>
+      <div class="health-card card-accent-green">
+        <div class="icon">📅</div>
+        <h4>Predictive Maintenance Alerts</h4>
+        <p>Mileage, repeated defects, temperature anomalies, and breakdown history — combined into early warnings.</p>
+      </div>
+    </div>
+    <div class="stat-bar reveal">
+      Preventing <strong>one peak-hour breakdown</strong> is worth more than reacting to ten roadside failures.
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 10 — PROBLEM → SOLUTION MAP
+       ==================================================== -->
+  <section class="slide" id="s10" data-index="9">
+    <p class="label reveal">Problem → Solution</p>
+    <div class="rule reveal"></div>
+    <h2 style="font-size:var(--h2);font-weight:800;letter-spacing:-0.02em;" class="reveal">
+      Every problem has a direct answer.
+    </h2>
+    <table class="map-table reveal">
+      <tbody class="stagger">
+        <tr class="map-row">
+          <td>Riders don't know when buses arrive</td>
+          <td class="arrow">→</td>
+          <td>Live GPS map + predictive ETA engine</td>
+        </tr>
+        <tr class="map-row">
+          <td>Revenue leaks through cash &amp; overrides</td>
+          <td class="arrow">→</td>
+          <td>Digital validation + fraud detection</td>
+        </tr>
+        <tr class="map-row">
+          <td>Smart card is opaque — no trust</td>
+          <td class="arrow">→</td>
+          <td>Real-time balance + full transaction history</td>
+        </tr>
+        <tr class="map-row">
+          <td>Delays communicated poorly or not at all</td>
+          <td class="arrow">→</td>
+          <td>Push + SMS alerts before passengers reach stops</td>
+        </tr>
+        <tr class="map-row">
+          <td>No demand data for route planning</td>
+          <td class="arrow">→</td>
+          <td>Boarding analytics + demand heatmaps</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 11 — BUSINESS VALUE
+       ==================================================== -->
+  <section class="slide" id="s11" data-index="10">
+    <p class="label reveal">Business Value</p>
+    <div class="rule reveal"></div>
+    <h2 style="font-size:var(--h2);font-weight:800;letter-spacing:-0.02em;" class="reveal">
+      Four vectors of measurable return
+    </h2>
+    <div class="quad stagger">
+      <div class="quad-card card-accent-blue">
+        <h4 style="color:var(--blue);">Revenue Recovery</h4>
+        <ul>
+          <li>More fares digitally validated &amp; auditable</li>
+          <li>Manual override abuse surfaces immediately</li>
+          <li>Mobile top-up reduces cash dependency</li>
+        </ul>
+      </div>
+      <div class="quad-card card-accent-amber">
+        <h4 style="color:var(--amber);">Operational Efficiency</h4>
+        <ul>
+          <li>Evidence-based dispatch, not reactive guesswork</li>
+          <li>Demand-led fleet allocation</li>
+          <li>Preventive maintenance reduces roadside failures</li>
+        </ul>
+      </div>
+      <div class="quad-card card-accent-green">
+        <h4 style="color:var(--green);">Public Trust</h4>
+        <ul>
+          <li>Riders who see their bus stay riders</li>
+          <li>Transparent fares end invisible deductions</li>
+          <li>Proactive delay comms convert frustration to patience</li>
+        </ul>
+      </div>
+      <div class="quad-card" style="border-top:2px solid var(--soft);">
+        <h4 style="color:var(--soft);">Governance &amp; Planning</h4>
+        <ul>
+          <li>Route-level evidence for capital decisions</li>
+          <li>Clean fare reconciliation closes audit gaps</li>
+          <li>Funder requests backed by operational data</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 12 — ROADMAP
+       ==================================================== -->
+  <section class="slide" id="s12" data-index="11">
+    <p class="label reveal">Implementation Roadmap</p>
+    <div class="rule reveal"></div>
+    <h2 style="font-size:var(--h2);font-weight:800;letter-spacing:-0.02em;" class="reveal">
+      Three phases. Measurable wins at each.
+    </h2>
+    <div class="phases stagger">
+      <div class="phase-card active-phase">
+        <div class="phase-num">1</div>
+        <div class="period">Months 1 – 4 · Pilot</div>
+        <h4>Foundation</h4>
+        <ul>
+          <li>3–5 high-volume routes</li>
+          <li>Passenger app core + driver app</li>
+          <li>Smart card + GPS tracking</li>
+          <li>Basic operations dashboard</li>
+        </ul>
+      </div>
+      <div class="phase-card">
+        <div class="phase-num">2</div>
+        <div class="period">Months 5 – 10 · Full Rollout</div>
+        <h4>Scale</h4>
+        <ul>
+          <li>All major urban corridors</li>
+          <li>Revenue analytics &amp; heatmaps</li>
+          <li>Maintenance workflows</li>
+          <li>Alert automation</li>
+        </ul>
+      </div>
+      <div class="phase-card">
+        <div class="phase-num">3</div>
+        <div class="period">Months 11 – 18 · AI Layer</div>
+        <h4>Intelligence</h4>
+        <ul>
+          <li>Predictive maintenance scoring</li>
+          <li>Demand forecasting by stop</li>
+          <li>Dynamic headway recommendations</li>
+          <li>Automated fraud anomaly scoring</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 13 — INVESTMENT & COST (new)
+       ==================================================== -->
+  <section class="slide" id="s13" data-index="12">
+    <p class="label reveal">Investment</p>
+    <div class="rule reveal"></div>
+    <h2 style="font-size:var(--h2);font-weight:800;letter-spacing:-0.02em;" class="reveal">
+      Realistic cost to build and operate
+    </h2>
+    <div class="cost-layout reveal">
+
+      <!-- LEFT: phase breakdown table -->
+      <div>
+        <table class="phase-cost-table">
+          <thead>
+            <tr>
+              <th>Phase</th>
+              <th>Timeline</th>
+              <th>Investment</th>
+            </tr>
+          </thead>
+          <tbody class="stagger">
+            <tr>
+              <td>Phase 1 — Pilot</td>
+              <td>Months 1–4 · 6-person team</td>
+              <td>~$220,000</td>
+            </tr>
+            <tr>
+              <td>Phase 2 — Full Rollout</td>
+              <td>Months 5–10 · 9-person team</td>
+              <td>~$480,000</td>
+            </tr>
+            <tr>
+              <td>Phase 3 — AI Layer</td>
+              <td>Months 11–18 · 7-person team</td>
+              <td>~$380,000</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2">Total 18-month build</td>
+              <td>~$1.08M USD</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="ops-cost-block" style="margin-top:clamp(0.8rem,1.8vh,1.2rem);">
+          <div class="ops-title">Annual Operating Cost (post-launch)</div>
+          <div class="ops-cost-row"><span>Engineering &amp; maintenance team (4 people)</span><span>~$320K</span></div>
+          <div class="ops-cost-row"><span>Cloud infrastructure + SMS + maps APIs</span><span>~$90K</span></div>
+          <div class="ops-cost-row" style="border-top:1px solid var(--border);margin-top:4px;padding-top:6px;"><span style="font-weight:700;color:var(--soft);">Total annual</span><span style="color:var(--amber);font-weight:700;">~$410K / yr</span></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: what's included + ROI framing -->
+      <div style="display:flex;flex-direction:column;gap:clamp(0.6rem,1.5vh,1rem);">
+        <div class="total-block">
+          <div class="total-label">18-Month Build Budget</div>
+          <div class="total-figure">~$1.08M</div>
+          <div class="total-sub">USD · all-in personnel, infrastructure,<br>pilot hardware &amp; security audits</div>
+        </div>
+
+        <div class="ops-cost-block">
+          <div class="ops-title">What's Included in Phase 1</div>
+          <div class="ops-cost-row"><span>Personnel — 6-person core team</span><span>~$180K</span></div>
+          <div class="ops-cost-row"><span>Cloud setup &amp; infrastructure</span><span>~$18K</span></div>
+          <div class="ops-cost-row"><span>Pilot hardware (validators + GPS)</span><span>~$22K</span></div>
+        </div>
+
+        <div class="roi-note">
+          Industry benchmarks: digital fare systems recover
+          <strong>8–15% of previously unaudited cash revenue</strong>
+          within 12 months of deployment. At JUTC's operating scale, that materially offsets the infrastructure investment within the first full year post-launch.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 14 — COMPETITIVE POSITIONING (was 13)
+       ==================================================== -->
+  <section class="slide" id="s13b" data-index="13">
+    <p class="label reveal">Competitive Positioning</p>
+    <div class="rule reveal"></div>
+    <h2 style="font-size:var(--h2);font-weight:800;letter-spacing:-0.02em;max-width:26ch;" class="reveal">
+      Designed for JUTC's real constraints. Not a lab.
+    </h2>
+    <div class="diff-grid stagger">
+      <div class="diff-card">
+        <span class="tag">Offline-first</span>
+        <h4>Works without a data connection</h4>
+        <p>QR tickets, cached maps, trip logs, and fare validation run on-device. Events sync when connectivity returns.</p>
+      </div>
+      <div class="diff-card">
+        <span class="tag">Mixed Fleet Ready</span>
+        <h4>No full hardware replacement needed</h4>
+        <p>Phase 1 runs on driver smartphones only. Dedicated GPS and validator hardware layers in during Phase 2.</p>
+      </div>
+      <div class="diff-card">
+        <span class="tag">Cash-to-Digital Path</span>
+        <h4>Riders don't need a bank account</h4>
+        <p>Voucher top-ups, mobile wallet integrations, and physical top-up vendor support built in from day one.</p>
+      </div>
+      <div class="diff-card">
+        <span class="tag">Low-Literacy UX</span>
+        <h4>3 taps, plain language</h4>
+        <p>Key information visible in 3 seconds. Large touch targets for standing riders and older users. No jargon.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 14 — TECHNICAL FOUNDATION
+       ==================================================== -->
+  <section class="slide" id="s14" data-index="14">
+    <p class="label reveal">Technical Foundation</p>
+    <div class="rule reveal"></div>
+    <h2 style="font-size:var(--h2);font-weight:800;letter-spacing:-0.02em;" class="reveal">
+      Production-ready. Scalable. Deployable today.
+    </h2>
+    <table class="tech-table reveal">
+      <thead>
+        <tr><th>Layer</th><th>Stack</th></tr>
+      </thead>
+      <tbody class="stagger">
+        <tr><td>Mobile Apps</td><td>React Native (Expo) — shared iOS + Android codebase</td></tr>
+        <tr><td>Admin Dashboard</td><td>React 18 + Vite — web application</td></tr>
+        <tr><td>Backend APIs</td><td>Node.js + Express microservices</td></tr>
+        <tr><td>Database</td><td>PostgreSQL + Prisma ORM</td></tr>
+        <tr><td>Real-Time</td><td>Redis pub/sub + Socket.io + BullMQ job queues</td></tr>
+        <tr><td>GPS Telemetry</td><td>TimescaleDB time-series store</td></tr>
+        <tr><td>Analytics</td><td>BigQuery / Snowflake compatible warehouse</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 15 — TEAM
+       ==================================================== -->
+  <section class="slide" id="s15" data-index="15">
+    <p class="label reveal">Delivery Team</p>
+    <div class="rule reveal"></div>
+    <h2 style="font-size:var(--h2);font-weight:800;letter-spacing:-0.02em;" class="reveal">
+      Purpose-built for this deployment
+    </h2>
+    <div class="team-grid stagger">
+      <div class="team-card card-accent-blue">
+        <h4>Product Lead</h4>
+        <p>Owns roadmap, stakeholder alignment, and delivery milestones</p>
+      </div>
+      <div class="team-card card-accent-blue">
+        <h4>Transit Operations Lead</h4>
+        <p>JUTC domain expert — translates operational needs to product requirements</p>
+      </div>
+      <div class="team-card card-accent-blue">
+        <h4>UX Designer</h4>
+        <p>Passenger, driver, and admin interface design with field testing</p>
+      </div>
+      <div class="team-card card-accent-blue">
+        <h4>Mobile Engineers</h4>
+        <p>Expo React Native — passenger app and driver app</p>
+      </div>
+      <div class="team-card card-accent-blue">
+        <h4>Backend Engineers</h4>
+        <p>APIs, real-time services, payments, telemetry, and security</p>
+      </div>
+      <div class="team-card card-accent-blue">
+        <h4>Data Engineer</h4>
+        <p>Analytics warehouse, demand models, ETA engine, reporting</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 16 — CLOSING
+       ==================================================== -->
+  <section class="slide" id="s16" data-index="16">
+    <canvas class="canvas-bg" id="canvas16"></canvas>
+    <blockquote class="reveal">
+      "This platform turns <strong>every trip</strong> into measurable service,
+      <strong>every fare</strong> into accountable revenue, and
+      <strong>every vehicle</strong> into a manageable operational asset."
+    </blockquote>
+    <p class="closing-name reveal">JUTC Digital Transit System · 2026</p>
+    <p class="cta reveal">Ready to deploy. Ready for Jamaica.</p>
+  </section>
+
+</div><!-- /#deck -->
+
+<!-- Chrome UI -->
+<div id="chrome">
+  <div id="progress" style="width:6.25%"></div>
+  <div id="slide-counter">01 / 17</div>
+  <div id="kbd-hint">
+    <span class="kbd">←</span>
+    <span class="kbd">→</span>
+    <span style="margin-left:4px;">navigate</span>
+  </div>
+</div>
+
+<button id="nav-prev" aria-label="Previous slide">‹</button>
+<button id="nav-next" aria-label="Next slide">›</button>
+
+<script>
+/* ============================================================
+   PRESENTATION CONTROLLER
+   ============================================================ */
+(function () {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total  = slides.length;
+  let current  = 0;
+  let animating = false;
+
+  const counter  = document.getElementById('slide-counter');
+  const progress = document.getElementById('progress');
+  const navPrev  = document.getElementById('nav-prev');
+  const navNext  = document.getElementById('nav-next');
+
+  function pad(n) { return String(n).padStart(2,'0'); }
+
+  function goTo(idx) {
+    if (animating) return;
+    if (idx < 0 || idx >= total) return;
+    animating = true;
+
+    slides[current].classList.remove('active');
+    current = idx;
+    slides[current].classList.add('active');
+
+    // chrome
+    counter.textContent  = pad(current + 1) + ' / ' + pad(total);
+    progress.style.width = ((current + 1) / total * 100) + '%';
+    navPrev.style.opacity = current === 0        ? '0.15' : '0.4';
+    navNext.style.opacity = current === total - 1 ? '0.15' : '0.4';
+
+    setTimeout(() => { animating = false; }, 750);
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  // init
+  slides[0].classList.add('active');
+  navPrev.style.opacity = '0.15';
+
+  // keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    { e.preventDefault(); prev(); }
+  });
+
+  // buttons
+  navPrev.addEventListener('click', prev);
+  navNext.addEventListener('click', next);
+
+  // wheel
+  let wheelLock = false;
+  document.addEventListener('wheel', e => {
+    if (wheelLock) return;
+    wheelLock = true;
+    e.deltaY > 0 ? next() : prev();
+    setTimeout(() => { wheelLock = false; }, 900);
+  }, { passive: true });
+
+  // touch swipe
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend',   e => {
+    const dx = touchX - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 40) { dx > 0 ? next() : prev(); }
+  }, { passive: true });
+
+/* ============================================================
+   CANVAS PARTICLE NETWORK (slides 1 & 16)
+   ============================================================ */
+  function initCanvas(canvasId, slideEl) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width  = slideEl.offsetWidth  || window.innerWidth;
+      canvas.height = slideEl.offsetHeight || window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const NODES = 55;
+    const nodes = Array.from({ length: NODES }, () => ({
+      x:  Math.random() * canvas.width,
+      y:  Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.35,
+      vy: (Math.random() - 0.5) * 0.35,
+      r:  Math.random() * 1.8 + 0.8,
+    }));
+
+    function draw() {
+      if (!slideEl.classList.contains('active')) {
+        requestAnimationFrame(draw);
+        return;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // move
+      nodes.forEach(n => {
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0 || n.x > canvas.width)  n.vx *= -1;
+        if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+      });
+
+      // edges
+      const DIST = 140;
+      for (let i = 0; i < NODES; i++) {
+        for (let j = i + 1; j < NODES; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const d  = Math.sqrt(dx * dx + dy * dy);
+          if (d < DIST) {
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.strokeStyle = `rgba(47,128,237,${0.18 * (1 - d / DIST)})`;
+            ctx.lineWidth   = 0.8;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // dots
+      nodes.forEach(n => {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(75,152,255,0.55)';
+        ctx.fill();
+      });
+
+      requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  initCanvas('canvas1',  document.getElementById('s1'));
+  initCanvas('canvas16', document.getElementById('s16'));
+
+/* ============================================================
+   HEATMAP CELLS (slide 8)
+   ============================================================ */
+  (function buildHeatmap() {
+    const hm = document.getElementById('heatmap');
+    if (!hm) return;
+    const cols = ['#1a2535','#1c3050','#1f4070','#2355a0','#2f80ed','#4b98ff','#27ae60','#f2c94c','#eb5757'];
+    const weights = [0,0,0,1,1,2,3,4,5,6,7,8];
+    for (let i = 0; i < 40; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'hm-cell';
+      const w = weights[Math.floor(Math.random() * weights.length)];
+      cell.style.background = cols[Math.min(w, cols.length - 1)];
+      cell.style.animationDelay = (Math.random() * 3) + 's';
+      hm.appendChild(cell);
+    }
+  })();
+
+})();
+</script>
+</body>
+</html>
