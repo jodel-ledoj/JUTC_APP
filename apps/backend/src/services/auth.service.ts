@@ -50,6 +50,40 @@ export async function registerUser(data: {
   return { user, tokens };
 }
 
+export async function loginDriver(identifier: string, password: string) {
+  // Normalise identifier — strip spaces/dashes/parens, add Jamaica prefix if needed
+  let phone = identifier.replace(/[\s\-().]/g, '');
+  if (phone.startsWith('1876')) phone = '+' + phone;
+  else if (phone.startsWith('876')) phone = '+1' + phone;
+  else if (!phone.startsWith('+')) phone = '+' + phone;
+
+  const user = await prisma.user.findUnique({
+    where: { phone },
+    select: {
+      id: true, email: true, phone: true, name: true, role: true,
+      password: true, isActive: true, isVerified: true, createdAt: true, updatedAt: true,
+    },
+  });
+
+  if (!user || !user.isActive) {
+    throw new AppError(401, 'UNAUTHORIZED', 'Invalid credentials');
+  }
+
+  if (!['DRIVER', 'CONDUCTOR'].includes(user.role)) {
+    // Return same generic error — don't reveal that the phone belongs to a non-driver
+    throw new AppError(401, 'UNAUTHORIZED', 'Invalid credentials');
+  }
+
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) {
+    throw new AppError(401, 'UNAUTHORIZED', 'Invalid credentials');
+  }
+
+  const tokens = await generateTokens(user.id, user.role as any);
+  const { password: _, ...safeUser } = user;
+  return { user: safeUser, tokens };
+}
+
 export async function loginUser(phone: string, password: string) {
   const user = await prisma.user.findUnique({
     where: { phone },

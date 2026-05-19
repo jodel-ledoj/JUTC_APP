@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,8 +13,9 @@ import {
   Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
+import { getSocket } from '../../lib/socket';
 import { Colors } from '../../constants/colors';
 
 // ---------------------------------------------------------------------------
@@ -301,6 +302,7 @@ function ReportModal({
 
 export default function NotificationsScreen() {
   const insets = useSafeAreaInsets();
+  const queryClientRef = useQueryClient();
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('alerts');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
@@ -312,6 +314,29 @@ export default function NotificationsScreen() {
     queryFn: async () => (await api.get('/notifications')).data.data as Notification[],
     refetchInterval: 30_000,
   });
+
+  // Real-time: receive admin-published alerts immediately via socket
+  useEffect(() => {
+    let mounted = true;
+    getSocket().then((socket) => {
+      if (!mounted) return;
+      const handler = (payload: { notification: Notification }) => {
+        queryClientRef.setQueryData<Notification[]>(['notifications'], (prev) => {
+          if (!prev) return [payload.notification];
+          // Avoid duplicate if poll also returns it
+          if (prev.some((n) => n.id === payload.notification.id)) return prev;
+          return [payload.notification, ...prev];
+        });
+      };
+      socket.on('alert:service', handler);
+      // Cleanup
+      (socket as any).__cleanupAlertHandler = () => socket.off('alert:service', handler);
+    });
+    return () => {
+      mounted = false;
+      getSocket().then((socket) => (socket as any).__cleanupAlertHandler?.());
+    };
+  }, [queryClientRef]);
 
   const toggleExpand = useCallback((id: string) => {
     setExpandedIds((prev) => {

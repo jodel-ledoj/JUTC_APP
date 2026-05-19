@@ -1,11 +1,23 @@
 import { Request, Response } from 'express';
 import { prisma } from '../config/database';
 import { AppError } from '../middleware/error.middleware';
+import { getIO } from '../config/socket';
+import { SOCKET_EVENTS } from '@jutc/shared';
+import { logger } from '../utils/logger';
 
 export async function createIncident(req: Request, res: Response) {
   const incident = await prisma.incident.create({
     data: { ...req.body, reportedBy: req.user!.userId },
+    include: { reporter: { select: { name: true, role: true } } },
   });
+
+  // Emit real-time notification to admin room
+  try {
+    getIO().to('admin').emit(SOCKET_EVENTS.INCIDENT_NEW, { incident });
+  } catch (err) {
+    logger.warn('Socket emit for incident:new failed', { err });
+  }
+
   res.status(201).json({ success: true, data: incident });
 }
 
@@ -18,7 +30,7 @@ export async function getIncidents(req: Request, res: Response) {
   const [items, total] = await Promise.all([
     prisma.incident.findMany({
       where,
-      include: { reporter: { select: { name: true, phone: true } } },
+      include: { reporter: { select: { name: true, phone: true, role: true } } },
       orderBy: { createdAt: 'desc' },
       skip: (parseInt(page as string) - 1) * parseInt(limit as string),
       take: parseInt(limit as string),

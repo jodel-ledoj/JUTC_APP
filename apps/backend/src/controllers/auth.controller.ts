@@ -12,6 +12,12 @@ export async function login(req: Request, res: Response) {
   res.json({ success: true, data: result });
 }
 
+export async function driverLogin(req: Request, res: Response) {
+  const { driverId, password } = req.body;
+  const result = await authService.loginDriver(driverId, password);
+  res.json({ success: true, data: result });
+}
+
 export async function refresh(req: Request, res: Response) {
   const { refreshToken } = req.body;
   const tokens = await authService.refreshAccessToken(refreshToken);

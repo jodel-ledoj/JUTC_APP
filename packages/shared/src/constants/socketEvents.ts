@@ -23,6 +23,9 @@ export const SOCKET_EVENTS = {
   // Driver
   DISPATCH_MESSAGE: 'dispatch:message',
 
+  // Incidents
+  INCIDENT_NEW: 'incident:new',
+
   // Rooms
   JOIN_ROUTE: 'join:route',
   LEAVE_ROUTE: 'leave:route',
