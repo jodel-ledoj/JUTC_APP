@@ -14,6 +14,20 @@ export async function saveTokens(accessToken: string, refreshToken: string) {
   ]);
 }
 
+export async function saveUser(user: object) {
+  await SecureStore.setItemAsync(KEYS.USER, JSON.stringify(user));
+}
+
+export async function getUser<T = unknown>(): Promise<T | null> {
+  const raw = await SecureStore.getItemAsync(KEYS.USER);
+  if (!raw) return null;
+  return JSON.parse(raw) as T;
+}
+
+export async function clearUser() {
+  await SecureStore.deleteItemAsync(KEYS.USER);
+}
+
 export async function getAccessToken(): Promise<string | null> {
   return SecureStore.getItemAsync(KEYS.ACCESS_TOKEN);
 }
@@ -26,6 +40,7 @@ export async function clearTokens() {
   await Promise.all([
     SecureStore.deleteItemAsync(KEYS.ACCESS_TOKEN),
     SecureStore.deleteItemAsync(KEYS.REFRESH_TOKEN),
+    SecureStore.deleteItemAsync(KEYS.USER),
   ]);
 }
 

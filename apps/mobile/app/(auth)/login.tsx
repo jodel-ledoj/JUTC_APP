@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,36 +9,54 @@ import { api } from '../../lib/api';
 import { useAuthStore } from '../../stores/auth.store';
 import { Colors } from '../../constants/colors';
 
-const loginSchema = z.object({
-  phone: z.string().min(7, 'Enter your phone number'),
+type LoginMode = 'passenger' | 'driver';
+
+const passengerSchema = z.object({
+  identifier: z.string().min(7, 'Enter your phone number'),
   password: z.string().min(6, 'Enter your password'),
 });
 
-type LoginForm = z.infer<typeof loginSchema>;
+const driverSchema = z.object({
+  identifier: z.string().min(3, 'Enter your Driver ID'),
+  password: z.string().min(6, 'Enter your password'),
+});
+
+type LoginForm = z.infer<typeof passengerSchema>;
+
+const normalizePhone = (phone: string): string => {
+  let p = phone.replace(/[\s\-().]/g, '');
+  if (p.startsWith('1876')) p = '+' + p;
+  else if (p.startsWith('876')) p = '+1' + p;
+  else if (!p.startsWith('+')) p = '+' + p;
+  return p;
+};
 
 export default function LoginScreen() {
   const { setAuth } = useAuthStore();
-  const { control, handleSubmit, formState: { errors } } = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
+  const [mode, setMode] = useState<LoginMode>('passenger');
+
+  const { control, handleSubmit, formState: { errors }, reset } = useForm<LoginForm>({
+    resolver: zodResolver(mode === 'driver' ? driverSchema : passengerSchema),
+    defaultValues: { identifier: '', password: '' },
   });
 
-  const normalizePhone = (phone: string): string => {
-    // Strip spaces, dashes, parentheses
-    let p = phone.replace(/[\s\-().]/g, '');
-    // If starts with 1876... add +
-    if (p.startsWith('1876') || p.startsWith('1876')) p = '+' + p;
-    // If starts with 876 (local Jamaica), add +1
-    else if (p.startsWith('876')) p = '+1' + p;
-    // If no + prefix, add it
-    else if (!p.startsWith('+')) p = '+' + p;
-    return p;
+  const switchMode = (next: LoginMode) => {
+    setMode(next);
+    reset({ identifier: '', password: '' });
   };
 
   const mutation = useMutation({
     mutationFn: async (data: LoginForm) => {
+      if (mode === 'driver') {
+        const res = await api.post('/auth/driver-login', {
+          driverId: data.identifier.trim(),
+          password: data.password,
+        });
+        return res.data.data;
+      }
       const res = await api.post('/auth/login', {
-        ...data,
-        phone: normalizePhone(data.phone),
+        phone: normalizePhone(data.identifier),
+        password: data.password,
       });
       return res.data.data;
     },
@@ -46,36 +65,72 @@ export default function LoginScreen() {
       const isDriver = data.user.role === 'DRIVER' || data.user.role === 'CONDUCTOR';
       router.replace(isDriver ? '/(driver)' : '/(passenger)');
     },
-    onError: () => Alert.alert('Sign In Failed', 'Invalid phone number or password.'),
+    onError: () => {
+      const label = mode === 'driver' ? 'Driver ID' : 'phone number';
+      Alert.alert('Sign In Failed', `Invalid ${label} or password.`);
+    },
   });
+
+  const isDriver = mode === 'driver';
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.wordmark}>JUTC</Text>
         <Text style={styles.subtitle}>Digital Transit System</Text>
       </View>
 
+      {/* Mode toggle */}
+      <View style={styles.modeToggle}>
+        <TouchableOpacity
+          style={[styles.modeTab, !isDriver && styles.modeTabActive]}
+          onPress={() => switchMode('passenger')}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.modeTabText, !isDriver && styles.modeTabTextActive]}>
+            Passenger
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.modeTab, isDriver && styles.modeTabActive]}
+          onPress={() => switchMode('driver')}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.modeTabText, isDriver && styles.modeTabTextActive]}>
+            Driver / Conductor
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Form */}
       <View style={styles.form}>
         <View style={styles.fieldGroup}>
-          <Text style={styles.label}>Phone Number</Text>
+          <Text style={styles.label}>
+            {isDriver ? 'Driver ID' : 'Phone Number'}
+          </Text>
           <Controller
             control={control}
-            name="phone"
+            name="identifier"
             render={({ field: { onChange, value } }) => (
               <TextInput
-                style={[styles.input, errors.phone && styles.inputError]}
+                style={[styles.input, errors.identifier && styles.inputError]}
                 value={value}
                 onChangeText={onChange}
-                placeholder="876 555 0001"
+                placeholder={isDriver ? 'e.g. DRV-00142' : '876 555 0001'}
                 placeholderTextColor={Colors.textMuted}
-                keyboardType="phone-pad"
-                autoComplete="tel"
+                keyboardType={isDriver ? 'default' : 'phone-pad'}
+                autoCapitalize={isDriver ? 'characters' : 'none'}
+                autoComplete={isDriver ? 'off' : 'tel'}
               />
             )}
           />
-          <Text style={styles.fieldHint}>Jamaica number e.g. 8765550020</Text>
-          {errors.phone && <Text style={styles.fieldError}>{errors.phone.message}</Text>}
+          {!isDriver && (
+            <Text style={styles.fieldHint}>Jamaica number e.g. 8765550020</Text>
+          )}
+          {errors.identifier && (
+            <Text style={styles.fieldError}>{errors.identifier.message}</Text>
+          )}
         </View>
 
         <View style={styles.fieldGroup}>
@@ -94,7 +149,9 @@ export default function LoginScreen() {
               />
             )}
           />
-          {errors.password && <Text style={styles.fieldError}>{errors.password.message}</Text>}
+          {errors.password && (
+            <Text style={styles.fieldError}>{errors.password.message}</Text>
+          )}
         </View>
 
         <TouchableOpacity
@@ -109,11 +166,14 @@ export default function LoginScreen() {
           }
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push('/(auth)/register')} activeOpacity={0.7}>
-          <Text style={styles.registerLink}>
-            New to JUTC? <Text style={styles.registerLinkAccent}>Create account</Text>
-          </Text>
-        </TouchableOpacity>
+        {!isDriver && (
+          <TouchableOpacity onPress={() => router.push('/(auth)/register')} activeOpacity={0.7}>
+            <Text style={styles.registerLink}>
+              New to JUTC?{' '}
+              <Text style={styles.registerLinkAccent}>Create account</Text>
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -127,7 +187,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   header: {
-    marginBottom: 52,
+    marginBottom: 40,
   },
   wordmark: {
     fontSize: 28,
@@ -141,6 +201,42 @@ const styles = StyleSheet.create({
     marginTop: 6,
     letterSpacing: 0.3,
   },
+
+  // Mode toggle
+  modeToggle: {
+    flexDirection: 'row',
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    padding: 4,
+    marginBottom: 32,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  modeTab: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 9,
+    alignItems: 'center',
+  },
+  modeTabActive: {
+    backgroundColor: Colors.white,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  modeTabText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: Colors.textMuted,
+  },
+  modeTabTextActive: {
+    color: Colors.text,
+    fontWeight: '600',
+  },
+
+  // Form
   form: {
     gap: 0,
   },
